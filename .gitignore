@@ -50,3 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Other
+src/crypto_kem/xwing/test/test_xkem_functionality
+.vscode
