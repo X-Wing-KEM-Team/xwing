@@ -1,5 +1,5 @@
-#ifndef PARAMS_X
-#define PARAMS_X
+#ifndef PARAMS_H
+#define PARAMS_H
 
 #define MLKEM_K 3
 #define MLKEM_N 256
@@ -18,15 +18,5 @@
 #define MLKEM_CIPHERTEXTBYTES 1088
 #define MLKEM_SYMBYTES 32
 #define MLKEM_SSBYTES 32
-
-#define DH_BYTES 32
-
-#define XWING_SYMBYTES 32
-#define XWING_SSBYTES 32
-#define XWING_PUBLICKEYBYTES 1216
-#define XWING_SECRETKEYBYTES 2464
-#define XWING_CIPHERTEXTBYTES 1120
-#define XWING_PRFINPUT 134
-#define XWING_LABEL "\\.//^\\"
 
 #endif

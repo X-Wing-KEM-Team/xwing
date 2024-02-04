@@ -10,9 +10,9 @@ default: test
 
 test: test/test_xkem_functionality
 
-HEADERS = xkem.h symmetric.h reduce.h polyvec.h poly.h params.h ntt.h kem.h indcpa.h fips202.h cbd.h
+HEADERS = xkem.h ../mlkem/symmetric.h ../mlkem/reduce.h ../mlkem/polyvec.h ../mlkem/poly.h params.h ../mlkem/ntt.h ../mlkem/kem.h ../mlkem/indcpa.h ../mlkem/fips202.h ../mlkem/cbd.h ../mlkem/params.h
 
-SOURCES =  xkem.c symmetric-fips202.c reduce.c polyvec.c poly.c ntt.c kem.c indcpa.c fips202.c cbd.c
+SOURCES =  xkem.c ../mlkem/symmetric-fips202.c ../mlkem/reduce.c ../mlkem/polyvec.c ../mlkem/poly.c ../mlkem/ntt.c ../mlkem/kem.c ../mlkem/indcpa.c ../mlkem/fips202.c ../mlkem/cbd.c
 
 test/test_xkem_functionality: test/test_xkem_functionality.c $(HEADERS) $(SOURCES) $(INCS)
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) $<
@@ -21,6 +21,7 @@ test/test_xkem_functionality: test/test_xkem_functionality.c $(HEADERS) $(SOURCE
 
 clean:
 	-rm -f test/xtest_kem
+	-rm -f *.s
 ifeq ($(OS),Darwin)
 	-rm -rf test/*.dSYM
 endif

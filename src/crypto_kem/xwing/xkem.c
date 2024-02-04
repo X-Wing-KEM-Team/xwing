@@ -3,8 +3,9 @@
 #include <string.h>
 #include <sodium.h>
 #include "xkem.h"
-#include "symmetric.h"
-#include "kem.h"
+#include "params.h"
+#include "../mlkem/symmetric.h"
+#include "../mlkem/kem.h"
 
 /*************************************************
  * Name:        crypto_xkem_keypair

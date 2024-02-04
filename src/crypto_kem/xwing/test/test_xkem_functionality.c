@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 #include <assert.h>
 
 #include "../params.h"
@@ -33,7 +33,7 @@ int main(void)
   
   /* TEST DECAPSULATION */
   crypto_xkem_dec(shk1, ct0, sk0);
-  assert(memcmp(shk0, shk1, XWING_SSBYTES) == 0);
+  assert(memcmp(shk0, shk1, (long unsigned int)32) == 0);
 
   return 0;
 }
