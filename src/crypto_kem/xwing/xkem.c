@@ -73,6 +73,7 @@ void crypto_xkem_enc(unsigned char *ct,
   bufPointer -= 102; // go back 132 - 32 bytes
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
+  free(bufPointer);
 }
 
 /*************************************************
@@ -110,4 +111,5 @@ void crypto_xkem_dec(uint8_t *ss,
   bufPointer -= 102; // go back 132 - 32 bytes
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
+  free(bufPointer);
 }
