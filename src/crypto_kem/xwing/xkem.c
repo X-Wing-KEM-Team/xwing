@@ -21,52 +21,15 @@ void crypto_xkem_keypair(unsigned char *pk,
                          unsigned char *sk,
                          const unsigned char *randomness)
 {
-  unsigned char mlkemPublicKey[MLKEM_PUBLICKEYBYTES];
-  unsigned char mlkemSecretKey[MLKEM_SECRETKEYBYTES];
-
-  unsigned char mlkemRandomness[2 * MLKEM_SYMBYTES];
-  unsigned char dhSecretKey[DH_BYTES];
-  unsigned char dhPublicKey[DH_BYTES];
-
-  int i;
-  for (i = 0; i < 3 * XWING_SYMBYTES; i++)
-  {
-    if (i >= 64)
-    {
-      dhSecretKey[i - 64] = randomness[i];
-    }
-    else
-    {
-      mlkemRandomness[i] = randomness[i];
-    }
-  }
-
-  unsigned char *mlkemRandomnessPointer = mlkemRandomness;
-  unsigned char *mlkemPublicKeyPointer = mlkemPublicKey;
-  unsigned char *mlkemSecretKeyPointer = mlkemSecretKey;
-
-  unsigned char *dhPublicKeyPointer = dhPublicKey;
-  unsigned char *dhSecretKeyPointer = dhSecretKey;
-
-  crypto_kem_keypair(mlkemPublicKeyPointer, mlkemSecretKeyPointer, mlkemRandomnessPointer);
-  crypto_scalarmult_base(dhPublicKeyPointer, dhSecretKeyPointer);
-
-  for (i = 0; i < MLKEM_PUBLICKEYBYTES; i++)
-  {
-    pk[i] = mlkemPublicKey[i];
-  }
-
-  for (i = 0; i < MLKEM_SECRETKEYBYTES; i++)
-  {
-    sk[i] = mlkemSecretKey[i];
-  }
-
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    pk[MLKEM_PUBLICKEYBYTES + i] = dhPublicKey[i];
-    sk[MLKEM_SECRETKEYBYTES + i] = dhSecretKey[i];
-    sk[MLKEM_SECRETKEYBYTES + DH_BYTES + i] = dhPublicKey[i];
-  }
+  crypto_kem_keypair(pk, sk, randomness);
+  pk += MLKEM_PUBLICKEYBYTES;
+  sk += MLKEM_SECRETKEYBYTES;
+  randomness += 2 * XWING_SYMBYTES;
+  crypto_scalarmult_base(pk, randomness);
+  
+  memcpy(sk, randomness, DH_BYTES);
+  sk += DH_BYTES;
+  memcpy(sk, pk, DH_BYTES);
 }
 
 /*************************************************
@@ -86,72 +49,29 @@ void crypto_xkem_enc(unsigned char *ct,
                      const unsigned char *pk,
                      const unsigned char *coins)
 {
-  unsigned char mlkemPublicKey[MLKEM_PUBLICKEYBYTES];
-  unsigned char mlkemSharedSecret[MLKEM_SSBYTES];
-  unsigned char mlkemCiphertext[MLKEM_CIPHERTEXTBYTES];
-  unsigned char mlkemCoins[MLKEM_SYMBYTES];
+  unsigned char *bufPointer = malloc(XWING_PRFINPUT);
+  
+  memcpy(bufPointer, XWING_LABEL, 6);
+  bufPointer += 6;
 
-  unsigned char dhPublicKey[DH_BYTES];
-  unsigned char dhSharedSecret[DH_BYTES];
-  unsigned char dhCiphertext[DH_BYTES];
-  unsigned char dhEphermeralKey[DH_BYTES];
+  crypto_kem_enc(ct, bufPointer, pk, coins);
 
-  int i;
-  for (i = 0; i < MLKEM_PUBLICKEYBYTES; i++)
-  {
-    mlkemPublicKey[i] = pk[i];
-  }
+  bufPointer += MLKEM_SSBYTES;
+  pk += MLKEM_PUBLICKEYBYTES;
+  ct += MLKEM_CIPHERTEXTBYTES;
+  coins += DH_BYTES;
 
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    dhPublicKey[i] = pk[MLKEM_PUBLICKEYBYTES + i];
-    dhEphermeralKey[i] = coins[i + DH_BYTES];
-    mlkemCoins[i] = coins[i];
-  }
+  crypto_scalarmult_base(ct, coins);
+  crypto_scalarmult(bufPointer, coins, pk);
+  bufPointer += DH_BYTES;
 
-  unsigned char *mlkemPublicKeyPointer = mlkemPublicKey;
-  unsigned char *mlkemSharedSecretPointer = mlkemSharedSecret;
-  unsigned char *mlkemCiphertextPointer = mlkemCiphertext;
-  unsigned char *mlkemCoinsPointer = mlkemCoins;
+  memcpy(bufPointer, ct, DH_BYTES);
+  bufPointer += DH_BYTES;
+  memcpy(bufPointer, pk, DH_BYTES);
 
-  crypto_kem_enc(mlkemCiphertextPointer, mlkemSharedSecretPointer, mlkemPublicKeyPointer, mlkemCoinsPointer);
+  bufPointer -= 102; // go back 132 - 32 bytes
 
-  unsigned char *dhPublicKeyPointer = dhPublicKey;
-  unsigned char *dhSharedSecretPointer = dhSharedSecret;
-  unsigned char *dhCiphertextPointer = dhCiphertext;
-  unsigned char *dhEphermeralKeyPointer = dhEphermeralKey;
-
-  crypto_scalarmult_base(dhCiphertextPointer, dhEphermeralKeyPointer);
-  crypto_scalarmult(dhSharedSecretPointer, dhEphermeralKeyPointer, dhPublicKeyPointer);
-
-  for (i = 0; i < MLKEM_CIPHERTEXTBYTES; i++)
-  {
-    ct[i] = mlkemCiphertextPointer[i];
-  }
-
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    ct[i + MLKEM_CIPHERTEXTBYTES] = dhCiphertext[i];
-  }
-
-  unsigned char xwingInputToHash[XWING_PRFINPUT];
-
-  for (i = 0; i < 6; i++)
-  {
-    xwingInputToHash[i] = XWING_LABEL[i];
-  }
-
-  for (i = 0; i < XWING_SYMBYTES; i++)
-  {
-    xwingInputToHash[i + 6] = mlkemSharedSecretPointer[i];
-    xwingInputToHash[i + 6 + XWING_SYMBYTES] = dhSharedSecretPointer[i];
-    xwingInputToHash[i + 6 + 2 * XWING_SYMBYTES] = dhCiphertextPointer[i];
-    xwingInputToHash[i + 6 + 3 * XWING_SYMBYTES] = dhPublicKeyPointer[i];
-  }
-
-  unsigned char *xwingInputToHashPointer = xwingInputToHash;
-
-  sha3_256(ss, xwingInputToHashPointer, XWING_PRFINPUT);
+  sha3_256(ss, bufPointer, XWING_PRFINPUT);
 }
 
 /*************************************************
@@ -168,65 +88,25 @@ void crypto_xkem_dec(uint8_t *ss,
                      const uint8_t *ct,
                      const uint8_t *sk)
 {
-  unsigned char mlkemSecretKey[MLKEM_SECRETKEYBYTES];
-  unsigned char mlkemSharedSecret[MLKEM_SSBYTES];
-  unsigned char mlkemCiphertext[MLKEM_CIPHERTEXTBYTES];
+  unsigned char *bufPointer = malloc(XWING_PRFINPUT);
+  
+  memcpy(bufPointer, XWING_LABEL, 6);
+  bufPointer += 6;
+  
+  crypto_kem_dec(bufPointer, ct, sk);
+  bufPointer += MLKEM_SSBYTES;
+  sk += MLKEM_SECRETKEYBYTES;
+  ct += MLKEM_CIPHERTEXTBYTES;
 
-  unsigned char dhSecretKey[DH_BYTES];
-  unsigned char dhPublicKey[DH_BYTES];
-  unsigned char dhSharedSecret[DH_BYTES];
-  unsigned char dhCiphertext[DH_BYTES];
+  crypto_scalarmult(bufPointer, sk, ct);
+  bufPointer += DH_BYTES;
+  sk += DH_BYTES;
 
-  int i;
-  for (i = 0; i < MLKEM_CIPHERTEXTBYTES; i++)
-  {
-    mlkemCiphertext[i] = ct[i];
-  }
+  memcpy(bufPointer, ct, DH_BYTES);
+  bufPointer += DH_BYTES;
+  memcpy(bufPointer, sk, DH_BYTES);
 
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    dhCiphertext[i] = ct[i + MLKEM_CIPHERTEXTBYTES];
-  }
+  bufPointer -= 102; // go back 132 - 32 bytes
 
-  for (i = 0; i < MLKEM_SECRETKEYBYTES; i++)
-  {
-    mlkemSecretKey[i] = sk[i];
-  }
-
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    dhSecretKey[i] = sk[i + MLKEM_SECRETKEYBYTES];
-    dhPublicKey[i] = sk[i + DH_BYTES + MLKEM_SECRETKEYBYTES];
-  }
-
-  unsigned char *mlkemSecretKeyPointer = mlkemSecretKey;
-  unsigned char *mlkemSharedSecretPointer = mlkemSharedSecret;
-  unsigned char *mlkemCiphertextPointer = mlkemCiphertext;
-
-  unsigned char *dhSecretKeyPointer = dhSecretKey;
-  unsigned char *dhSharedSecretPointer = dhSharedSecret;
-  unsigned char *dhCiphertextPointer = dhCiphertext;
-  unsigned char *dhPublicKeyPointer = dhPublicKey;
-
-  crypto_kem_dec(mlkemSharedSecretPointer, mlkemCiphertextPointer, mlkemSecretKeyPointer);
-  crypto_scalarmult(dhSharedSecretPointer, dhSecretKeyPointer, dhCiphertextPointer);
-
-  unsigned char xwingInputToHash[XWING_PRFINPUT];
-
-  for (i = 0; i < 6; i++)
-  {
-    xwingInputToHash[i] = XWING_LABEL[i];
-  }
-
-  for (i = 0; i < XWING_SYMBYTES; i++)
-  {
-    xwingInputToHash[i + 6] = mlkemSharedSecretPointer[i];
-    xwingInputToHash[i + 6 + XWING_SYMBYTES] = dhSharedSecretPointer[i];
-    xwingInputToHash[i + 6 + 2 * XWING_SYMBYTES] = dhCiphertextPointer[i];
-    xwingInputToHash[i + 6 + 3 * XWING_SYMBYTES] = dhPublicKeyPointer[i];
-  }
-
-  unsigned char *xwingInputToHashPointer = xwingInputToHash;
-
-  sha3_256(ss, xwingInputToHashPointer, XWING_PRFINPUT);
+  sha3_256(ss, bufPointer, XWING_PRFINPUT);
 }
