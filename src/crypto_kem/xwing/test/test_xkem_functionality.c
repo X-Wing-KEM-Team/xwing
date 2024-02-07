@@ -8,7 +8,7 @@
 
 int testTestVectors()
 {
-  int i;
+  int i, j;
 
   unsigned char sk0[XWING_SECRETKEYBYTES];
   unsigned char pk0[XWING_PUBLICKEYBYTES];
@@ -16,43 +16,46 @@ int testTestVectors()
   unsigned char shk0[XWING_SSBYTES];
   unsigned char shk1[XWING_SSBYTES];
 
-  /* TEST KEYPAIR */
-  crypto_xkem_keypair(pk0, sk0, XWING_SEED_TEST_VECTOR);
-
-  for (i = 0; i < XWING_SECRETKEYBYTES; i++)
+  for (j = 0; j > 3; j++)
   {
-    if (sk0[i] != XWING_SECRETKEY_TEST_VECTOR[i])
-      printf("crypto_xkem_keypair sk : %d sk0= %#04X and XWING_SECRETKEY_TEST_VECTOR = %#04X\n", i, sk0[i], XWING_SECRETKEY_TEST_VECTOR[i]);
-  }
+    /* TEST KEYPAIR */
+    crypto_xkem_keypair(pk0, sk0, XWING_SEED_TEST_VECTOR[j]);
 
-  for (i = 0; i < XWING_PUBLICKEYBYTES; i++)
-  {
-    if (pk0[i] != XWING_PUBLICKEY_TEST_VECTOR[i])
-      printf("error crypto_xkem_keypair pk: %d pk0= %#04X - XWING_PUBLICKEY_TEST_VECTOR = %#04X\n", i, pk0[i], XWING_PUBLICKEY_TEST_VECTOR[i]);
-  }
+    for (i = 0; i < XWING_SECRETKEYBYTES; i++)
+    {
+      if (sk0[i] != XWING_SECRETKEY_TEST_VECTOR[j][i])
+        printf("crypto_xkem_keypair sk : %d sk0= %#04X and XWING_SECRETKEY_TEST_VECTOR = %#04X\n", i, sk0[i], XWING_SECRETKEY_TEST_VECTOR[j][i]);
+    }
 
-  crypto_xkem_enc(ct0, shk0, XWING_PUBLICKEY_TEST_VECTOR, XWING_ESEED_TEST_VECTOR);
+    for (i = 0; i < XWING_PUBLICKEYBYTES; i++)
+    {
+      if (pk0[i] != XWING_PUBLICKEY_TEST_VECTOR[j][i])
+        printf("error crypto_xkem_keypair pk: %d pk0= %#04X - XWING_PUBLICKEY_TEST_VECTOR = %#04X\n", i, pk0[i], XWING_PUBLICKEY_TEST_VECTOR[j][i]);
+    }
 
-  for (i = 0; i < XWING_CIPHERTEXTBYTES; i++)
-  {
-    if (ct0[i] != XWING_CIPHERTEXT_TEST_VECTOR[i])
-      printf("error crypto_xkem_enc ct: %d ct0= %#04X - XWING_CIPHERTEXT_TEST_VECTOR = %#04X\n", i, ct0[i], XWING_CIPHERTEXT_TEST_VECTOR[i]);
-  }
+    crypto_xkem_enc(ct0, shk0, XWING_PUBLICKEY_TEST_VECTOR[j], XWING_ESEED_TEST_VECTOR[j]);
 
-  for (i = 0; i < XWING_SSBYTES; i++)
-  {
-    if (shk0[i] != XWING_SHAREDKEY_TEST_VECTOR[i])
-      printf("error crypto_xkem_enc shk: %d shk0= %#04X - XWING_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], XWING_SHAREDKEY_TEST_VECTOR[i]);
-  }
+    for (i = 0; i < XWING_CIPHERTEXTBYTES; i++)
+    {
+      if (ct0[i] != XWING_CIPHERTEXT_TEST_VECTOR[j][i])
+        printf("error crypto_xkem_enc ct: %d ct0= %#04X - XWING_CIPHERTEXT_TEST_VECTOR = %#04X\n", i, ct0[i], XWING_CIPHERTEXT_TEST_VECTOR[j][i]);
+    }
 
-  /* TEST DECAPSULATION */
+    for (i = 0; i < XWING_SSBYTES; i++)
+    {
+      if (shk0[i] != XWING_SHAREDKEY_TEST_VECTOR[j][i])
+        printf("error crypto_xkem_enc shk: %d shk0= %#04X - XWING_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], XWING_SHAREDKEY_TEST_VECTOR[j][i]);
+    }
 
-  crypto_xkem_dec(shk1, XWING_CIPHERTEXT_TEST_VECTOR, XWING_SECRETKEY_TEST_VECTOR);
+    /* TEST DECAPSULATION */
 
-  for (i = 0; i < XWING_SSBYTES; i++)
-  {
-    if (shk1[i] != XWING_SHAREDKEY_TEST_VECTOR[i])
-      printf("error crypto_xkem_dec: %d shk2= %#04X - XWING_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], XWING_SHAREDKEY_TEST_VECTOR[i]);
+    crypto_xkem_dec(shk1, XWING_CIPHERTEXT_TEST_VECTOR[j], XWING_SECRETKEY_TEST_VECTOR[j]);
+
+    for (i = 0; i < XWING_SSBYTES; i++)
+    {
+      if (shk1[i] != XWING_SHAREDKEY_TEST_VECTOR[j][i])
+        printf("error crypto_xkem_dec: %d shk1= %#04X - XWING_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], XWING_SHAREDKEY_TEST_VECTOR[j][i]);
+    }
   }
   return 0;
 }
