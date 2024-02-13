@@ -2,4 +2,6 @@ Optimised C implementation of the (derandomnised) X-Wing hybrid KEM as defined i
 
 This reuses code from some C files and headers, and adapted Makefiles from [https://github.com/pq-crystals/kyber/tree/standard](https://github.com/pq-crystals/kyber/tree/standard) for the optimised mlkem implementation (named just kyber in the repo), and is in the Public Domain or licensed by Apache Version 2. Furthermore, this code also reuses some C files and headers, and adapted Makefiles from [https://github.com/formosa-crypto/hakyber](https://github.com/formosa-crypto/hakyber) for the reference mlkem implementation. The license for this code is unknown.  
 
-For the reference version, libsodium must be installed system-wide, and for the optimized implementation, lib25519 must be installed system-wide.
+For the reference version, [libsodium](https://doc.libsodium.org/) (tested with version 1.0.19) must be installed system-wide, and for the optimized implementation, [lib25519](https://lib25519.cr.yp.to/) (tested with version 20230630) must be installed system-wide. Other dependencies related to lib25519 include [libcpucycles](https://cpucycles.cr.yp.to/) (tested with version 20240114) and [librandombytes](https://randombytes.cr.yp.to/index.html) (tested with version 20230919).
+
+For any other dependencies of libsodium and lib25519, please consult with their documentation.
