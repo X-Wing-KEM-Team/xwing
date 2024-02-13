@@ -3,7 +3,7 @@
 -include ../../../../Makefile.conf
 
 CC     ?= /usr/bin/gcc
-CFLAGS := -Wall -Wextra -g -O3 -fomit-frame-pointer -lsodium
+CFLAGS := -Wall -Wextra -g -O3 -fomit-frame-pointer -l25519
 OS     := $(shell uname -s)
 
 default: test

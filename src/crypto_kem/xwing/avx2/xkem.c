@@ -8,8 +8,7 @@
 #include "../../kyber/avx2/fips202.h"
 #include "params.h"
 
-const unsigned char X25519_BASE[22] = {0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
+const unsigned char X25519_BASE[32] = {9};
 
 /*************************************************
  * Name:        crypto_xkem_keypair
@@ -30,8 +29,8 @@ void crypto_xkem_keypair(unsigned char *pk,
   pk += MLKEM_PUBLICKEYBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
-  lib25519_dh(pk, randomness, X25519_BASE);
-  
+  lib25519_dh(pk, X25519_BASE, randomness);
+
   memcpy(sk, randomness, DH_BYTES);
   sk += DH_BYTES;
   memcpy(sk, pk, DH_BYTES);
@@ -55,7 +54,7 @@ void crypto_xkem_enc(unsigned char *ct,
                      const unsigned char *coins)
 {
   unsigned char *bufPointer = malloc(XWING_PRFINPUT);
-  
+
   memcpy(bufPointer, XWING_LABEL, 6);
   bufPointer += 6;
 
@@ -66,8 +65,8 @@ void crypto_xkem_enc(unsigned char *ct,
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
-  lib25519_dh(ct, coins, X25519_BASE);
-  lib25519_dh(bufPointer, coins, pk);
+  lib25519_dh(ct, X25519_BASE, coins);
+  lib25519_dh(bufPointer, pk, coins);
   bufPointer += DH_BYTES;
 
   memcpy(bufPointer, ct, DH_BYTES);
@@ -95,16 +94,16 @@ void crypto_xkem_dec(uint8_t *ss,
                      const uint8_t *sk)
 {
   unsigned char *bufPointer = malloc(XWING_PRFINPUT);
-  
+
   memcpy(bufPointer, XWING_LABEL, 6);
   bufPointer += 6;
-  
+
   crypto_kem_dec(bufPointer, ct, sk);
   bufPointer += MLKEM_SSBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
 
-  lib25519_dh(bufPointer, sk, ct);
+  lib25519_dh(bufPointer, ct, sk);
   bufPointer += DH_BYTES;
   sk += DH_BYTES;
 

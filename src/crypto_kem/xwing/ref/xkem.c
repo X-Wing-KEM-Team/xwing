@@ -2,11 +2,13 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sodium.h>
+#include <lib25519.h>
 #include "xkem.h"
 #include "params.h"
 #include "../../mlkem/ref/symmetric.h"
 #include "../../mlkem/ref/kem.h"
+
+static const unsigned char X25519_BASE[32] = {9};
 
 /*************************************************
  * Name:        crypto_xkem_keypair
@@ -27,8 +29,8 @@ void crypto_xkem_keypair(unsigned char *pk,
   pk += MLKEM_PUBLICKEYBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
-  crypto_scalarmult_base(pk, randomness);
-  
+  lib25519_dh(pk, X25519_BASE, randomness);
+
   memcpy(sk, randomness, DH_BYTES);
   sk += DH_BYTES;
   memcpy(sk, pk, DH_BYTES);
@@ -52,7 +54,7 @@ void crypto_xkem_enc(unsigned char *ct,
                      const unsigned char *coins)
 {
   unsigned char *bufPointer = malloc(XWING_PRFINPUT);
-  
+
   memcpy(bufPointer, XWING_LABEL, 6);
   bufPointer += 6;
 
@@ -63,8 +65,8 @@ void crypto_xkem_enc(unsigned char *ct,
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
-  crypto_scalarmult_base(ct, coins);
-  crypto_scalarmult(bufPointer, coins, pk);
+  lib25519_dh(ct, X25519_BASE, coins);
+  lib25519_dh(bufPointer, pk, coins);
   bufPointer += DH_BYTES;
 
   memcpy(bufPointer, ct, DH_BYTES);
@@ -92,16 +94,16 @@ void crypto_xkem_dec(uint8_t *ss,
                      const uint8_t *sk)
 {
   unsigned char *bufPointer = malloc(XWING_PRFINPUT);
-  
+
   memcpy(bufPointer, XWING_LABEL, 6);
   bufPointer += 6;
-  
+
   crypto_kem_dec(bufPointer, ct, sk);
   bufPointer += MLKEM_SSBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
 
-  crypto_scalarmult(bufPointer, sk, ct);
+  lib25519_dh(bufPointer, ct, sk);
   bufPointer += DH_BYTES;
   sk += DH_BYTES;
 

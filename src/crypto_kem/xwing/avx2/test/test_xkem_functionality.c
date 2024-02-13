@@ -28,7 +28,7 @@ static int testTestVectors()
     {
       if (sk0[i] != XWING_SECRETKEY_TEST_VECTOR[j][i])
       {
-        printf("crypto_xkem_keypair sk : %d sk0= %#04X and XWING_SECRETKEY_TEST_VECTOR = %#04X\n", i, sk0[i], XWING_SECRETKEY_TEST_VECTOR[j][i]);
+        printf("vector %d crypto_xkem_keypair sk : %d sk0= %#04X and XWING_SECRETKEY_TEST_VECTOR = %#04X\n", j, i, sk0[i], XWING_SECRETKEY_TEST_VECTOR[j][i]);
         error = 1;
       }
     }
@@ -37,7 +37,7 @@ static int testTestVectors()
     {
       if (pk0[i] != XWING_PUBLICKEY_TEST_VECTOR[j][i])
       {
-        printf("error crypto_xkem_keypair pk: %d pk0= %#04X - XWING_PUBLICKEY_TEST_VECTOR = %#04X\n", i, pk0[i], XWING_PUBLICKEY_TEST_VECTOR[j][i]);
+        printf("vector %d error crypto_xkem_keypair pk: %d pk0= %#04X - XWING_PUBLICKEY_TEST_VECTOR = %#04X\n", j, i, pk0[i], XWING_PUBLICKEY_TEST_VECTOR[j][i]);
         error = 1;
       }
     }
@@ -75,7 +75,8 @@ static int testTestVectors()
       }
     }
   }
-  return error;
+  assert(error == 0);
+  return 0;
 }
 
 static int testFunctionality()
@@ -111,7 +112,6 @@ int main(void)
   int test0, test1;
   test0 = testFunctionality();
   test1 = testTestVectors();
-
 
   return -1 * (test0 && test1);
 }
