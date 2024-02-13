@@ -1,4 +1,4 @@
-#include "../kyber/avx2/consts.h"
+#include "../../kyber/avx2/consts.h"
 .include "shuffle.inc"
 .include "fq.inc"
 
