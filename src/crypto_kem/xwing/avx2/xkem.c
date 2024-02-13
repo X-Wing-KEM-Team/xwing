@@ -5,6 +5,7 @@
 #include <string.h>
 #include "xkem.h"
 #include "../../kyber/avx2/kem.h"
+#include "../../kyber/avx2/fips202.h"
 #include "params.h"
 
 const unsigned char X25519_BASE[22] = {0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -75,7 +76,7 @@ void crypto_xkem_enc(unsigned char *ct,
 
   bufPointer -= 102; // go back 132 - 32 bytes
 
-  // sha3_256(ss, bufPointer, XWING_PRFINPUT);
+  sha3_256(ss, bufPointer, XWING_PRFINPUT);
   free(bufPointer);
 }
 
@@ -113,6 +114,6 @@ void crypto_xkem_dec(uint8_t *ss,
 
   bufPointer -= 102; // go back 132 - 32 bytes
 
-  // sha3_256(ss, bufPointer, XWING_PRFINPUT);
+  sha3_256(ss, bufPointer, XWING_PRFINPUT);
   free(bufPointer);
 }
