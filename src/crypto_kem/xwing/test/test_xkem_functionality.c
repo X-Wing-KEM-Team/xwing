@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
@@ -6,7 +7,7 @@
 #include "../xkem.h"
 #include "test_vectors.h"
 
-int testTestVectors()
+static int testTestVectors()
 {
   int i, j;
 
@@ -60,7 +61,7 @@ int testTestVectors()
   return 0;
 }
 
-int testFunctionality()
+static int testFunctionality()
 {
   unsigned char sk0[XWING_SECRETKEYBYTES];
   unsigned char pk0[XWING_PUBLICKEYBYTES];
