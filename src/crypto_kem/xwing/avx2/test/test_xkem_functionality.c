@@ -41,7 +41,6 @@ static int testTestVectors()
         error = 1;
       }
     }
-
     crypto_xkem_enc(ct0, shk0, XWING_PUBLICKEY_TEST_VECTOR[j], XWING_ESEED_TEST_VECTOR[j]);
 
     for (i = 0; i < XWING_CIPHERTEXTBYTES; i++)
