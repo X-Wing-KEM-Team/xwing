@@ -17,7 +17,7 @@ static int testTestVectors()
   unsigned char shk0[XWING_SSBYTES];
   unsigned char shk1[XWING_SSBYTES];
 
-  for (j = 0; j > 3; j++)
+  for (j = 0; j < 3; j++)
   {
     /* TEST KEYPAIR */
     crypto_xkem_keypair(pk0, sk0, XWING_SEED_TEST_VECTOR[j]);
