@@ -1,11 +1,14 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <lib25519.h>
 #include <string.h>
-#include <sodium.h>
 #include "xkem.h"
+#include "../kyber/avx2/kem.h"
 #include "params.h"
-#include "../mlkem/symmetric.h"
-#include "../mlkem/kem.h"
+
+const unsigned char X25519_BASE[22] = {0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
 
 /*************************************************
  * Name:        crypto_xkem_keypair
@@ -22,11 +25,11 @@ void crypto_xkem_keypair(unsigned char *pk,
                          unsigned char *sk,
                          const unsigned char *randomness)
 {
-  crypto_kem_keypair(pk, sk, randomness);
+  crypto_kem_keypair_derand(pk, sk, randomness);
   pk += MLKEM_PUBLICKEYBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
-  crypto_scalarmult_base(pk, randomness);
+  lib25519_dh(pk, randomness, X25519_BASE);
   
   memcpy(sk, randomness, DH_BYTES);
   sk += DH_BYTES;
@@ -55,15 +58,15 @@ void crypto_xkem_enc(unsigned char *ct,
   memcpy(bufPointer, XWING_LABEL, 6);
   bufPointer += 6;
 
-  crypto_kem_enc(ct, bufPointer, pk, coins);
+  crypto_kem_enc_derand(ct, bufPointer, pk, coins);
 
   bufPointer += MLKEM_SSBYTES;
   pk += MLKEM_PUBLICKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
-  crypto_scalarmult_base(ct, coins);
-  crypto_scalarmult(bufPointer, coins, pk);
+  lib25519_dh(ct, coins, X25519_BASE);
+  lib25519_dh(bufPointer, coins, pk);
   bufPointer += DH_BYTES;
 
   memcpy(bufPointer, ct, DH_BYTES);
@@ -72,7 +75,7 @@ void crypto_xkem_enc(unsigned char *ct,
 
   bufPointer -= 102; // go back 132 - 32 bytes
 
-  sha3_256(ss, bufPointer, XWING_PRFINPUT);
+  // sha3_256(ss, bufPointer, XWING_PRFINPUT);
   free(bufPointer);
 }
 
@@ -100,7 +103,7 @@ void crypto_xkem_dec(uint8_t *ss,
   sk += MLKEM_SECRETKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
 
-  crypto_scalarmult(bufPointer, sk, ct);
+  lib25519_dh(bufPointer, sk, ct);
   bufPointer += DH_BYTES;
   sk += DH_BYTES;
 
@@ -110,6 +113,6 @@ void crypto_xkem_dec(uint8_t *ss,
 
   bufPointer -= 102; // go back 132 - 32 bytes
 
-  sha3_256(ss, bufPointer, XWING_PRFINPUT);
+  // sha3_256(ss, bufPointer, XWING_PRFINPUT);
   free(bufPointer);
 }

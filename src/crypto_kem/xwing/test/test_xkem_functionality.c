@@ -6,7 +6,7 @@
 #include "../xkem.h"
 #include "test_vectors.h"
 
-int testTestVectors()
+static int testTestVectors()
 {
   int i, j;
 
@@ -60,7 +60,7 @@ int testTestVectors()
   return 0;
 }
 
-int testFunctionality()
+static int testFunctionality()
 {
   unsigned char sk0[XWING_SECRETKEYBYTES];
   unsigned char pk0[XWING_PUBLICKEYBYTES];
@@ -90,7 +90,6 @@ int testFunctionality()
 
 int main(void)
 {
-  sodium_init();
   int test0, test1;
   test0 = testFunctionality();
   test1 = testTestVectors();
