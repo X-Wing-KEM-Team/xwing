@@ -8,8 +8,6 @@
 #include "../../kyber/avx2/fips202.h"
 #include "params.h"
 
-const unsigned char X25519_BASE[32] = {9};
-
 /*************************************************
  * Name:        crypto_xkem_keypair
  *
@@ -29,7 +27,7 @@ void crypto_xkem_keypair(unsigned char *pk,
   pk += MLKEM_PUBLICKEYBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
-  lib25519_dh(pk, X25519_BASE, randomness);
+  lib25519_nG_montgomery25519(pk, randomness);
 
   memcpy(sk, randomness, DH_BYTES);
   sk += DH_BYTES;
@@ -65,7 +63,7 @@ void crypto_xkem_enc(unsigned char *ct,
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
-  lib25519_dh(ct, X25519_BASE, coins);
+  lib25519_nG_montgomery25519(ct, coins);
   lib25519_dh(bufPointer, pk, coins);
   bufPointer += DH_BYTES;
 

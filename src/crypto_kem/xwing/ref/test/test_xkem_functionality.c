@@ -55,8 +55,10 @@ static int testTestVectors()
     for (i = 0; i < XWING_SSBYTES; i++)
     {
       if (shk0[i] != XWING_SHAREDKEY_TEST_VECTOR[j][i])
+      {
         printf("error crypto_xkem_enc shk: %d shk0= %#04X - XWING_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], XWING_SHAREDKEY_TEST_VECTOR[j][i]);
-      error = 1;
+        error = 1;
+      }
     }
 
     /* TEST DECAPSULATION */
@@ -66,8 +68,10 @@ static int testTestVectors()
     for (i = 0; i < XWING_SSBYTES; i++)
     {
       if (shk1[i] != XWING_SHAREDKEY_TEST_VECTOR[j][i])
+      {
         printf("error crypto_xkem_dec: %d shk1= %#04X - XWING_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], XWING_SHAREDKEY_TEST_VECTOR[j][i]);
-      error = 1;
+        error = 1;
+      }
     }
   }
   assert(error == 0);
