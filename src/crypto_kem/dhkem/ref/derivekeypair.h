@@ -1,0 +1,1 @@
+void deriveKeyPair(unsigned char *out, unsigned char *ikm);
