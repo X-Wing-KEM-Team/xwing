@@ -58,3 +58,4 @@ src/crypto_kem/xwing/test/test_xkem_functionality
 
 # Test binaries
 test_xkem_functionality
+test_speed
