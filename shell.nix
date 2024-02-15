@@ -58,12 +58,23 @@ let
       ./configure --prefix=${placeholder "out"}
     '';
   };
+
+  benchmark = pkgs.writeShellApplication {
+    name = "run-benchmark";
+    text = ''
+echo 2 | sudo tee /sys/devices/cpu/rdpmc
+sudo cpupower frequency-set -f 3.6Ghz
+make
+for i in {0..100}; do echo "$i"; src/crypto_kem/xwing/ref/test/test_speed >> results_ref; src/crypto_kem/xwing/avx2/test/test_speed >> results_avx2; done
+    '';
+  };
 in
 pkgs.mkShell {
    nativeBuildInputs = [
     gnumake
     gcc
     valgrind
+    benchmark
    ];
 
    buildInputs = [
