@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <lib25519.h>
 #include "gkem.h"
@@ -51,8 +52,11 @@ void crypto_gkem_enc(unsigned char *ct,
   unsigned char *bufPointer = malloc(GHPC_PRFINPUT);
 
   crypto_kem_enc(ct, bufPointer, pk, coins);
+
   bufPointer += MLKEM_SSBYTES;
+
   memcpy(bufPointer, ct, MLKEM_CIPHERTEXTBYTES);
+
   bufPointer += MLKEM_CIPHERTEXTBYTES;
 
   pk += MLKEM_PUBLICKEYBYTES;
@@ -61,13 +65,9 @@ void crypto_gkem_enc(unsigned char *ct,
 
   crypto_dkem_enc(ct, bufPointer, pk, coins);
   bufPointer += DH_BYTES;
-
   memcpy(bufPointer, ct, DH_BYTES);
-  bufPointer += DH_BYTES;
 
-  memcpy(bufPointer, pk, DH_BYTES);
-
-  bufPointer -= MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES;
+  bufPointer -= 1152;
 
   sha3_256(ss, bufPointer, GHPC_PRFINPUT);
   free(bufPointer);
@@ -101,11 +101,8 @@ void crypto_gkem_dec(uint8_t *ss,
   bufPointer += DH_BYTES;
 
   memcpy(bufPointer, ct, DH_BYTES);
-  bufPointer += DH_BYTES;
 
-  lib25519_nG_montgomery25519(bufPointer, sk);
-
-  bufPointer -= MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES;
+  bufPointer -= 1152;
 
   sha3_256(ss, bufPointer, GHPC_PRFINPUT);
   free(bufPointer);
