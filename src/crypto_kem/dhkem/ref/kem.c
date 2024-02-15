@@ -50,7 +50,7 @@ void crypto_dkem_dec(unsigned char *m,
     pk = malloc(DH_BYTES);
     kemContext = malloc(2 * DH_BYTES);
 
-    lib25519_dh(dh, sk, c);
+    lib25519_dh(dh, c, sk);
     lib25519_nG_montgomery25519(pk, sk);
 
     memcpy(kemContext, c, DH_BYTES);
