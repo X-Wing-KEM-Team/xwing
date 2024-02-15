@@ -9,8 +9,6 @@
 #include "../../mlkem/ref/kem.h"
 #include "../../dhkem/ref/kem.h"
 
-static const unsigned char X25519_BASE[32] = {9};
-
 /*************************************************
  * Name:        crypto_gkem_keypair
  *
