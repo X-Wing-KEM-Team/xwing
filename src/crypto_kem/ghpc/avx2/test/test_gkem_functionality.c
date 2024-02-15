@@ -15,8 +15,8 @@ static int testFunctionality()
   unsigned char shk0[GHPC_SSBYTES];
   unsigned char shk1[GHPC_SSBYTES];
 
-  unsigned char randomness0[DH_BYTES];
-  unsigned char randomness1[DH_BYTES];
+  unsigned char randomness0[3 * DH_BYTES];
+  unsigned char randomness1[2 * DH_BYTES];
 
   FILE *urandom = fopen("/dev/urandom", "r");
   fread(randomness0, 3 * DH_BYTES, 1, urandom);

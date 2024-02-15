@@ -75,6 +75,7 @@ pkgs.mkShell {
     gcc
     valgrind
     benchmark
+    gef
    ];
 
    buildInputs = [

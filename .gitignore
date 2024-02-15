@@ -57,6 +57,7 @@ src/crypto_kem/xwing/test/test_xkem_functionality
 .direnv
 
 # Test binaries
-test_xkem_functionality
+test_*_functionality
 test_speed
 results_*
+.gdb_history
