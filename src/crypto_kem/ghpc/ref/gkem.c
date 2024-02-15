@@ -30,11 +30,7 @@ void crypto_gkem_keypair(unsigned char *pk,
   pk += MLKEM_PUBLICKEYBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * GHPC_SYMBYTES;
-  lib25519_dh(pk, X25519_BASE, randomness);
-
-  memcpy(sk, randomness, DH_BYTES);
-  sk += DH_BYTES;
-  memcpy(sk, pk, DH_BYTES);
+  crypto_dkem_keypair(pk, sk, randomness);
 }
 
 /*************************************************
@@ -56,24 +52,24 @@ void crypto_gkem_enc(unsigned char *ct,
 {
   unsigned char *bufPointer = malloc(GHPC_PRFINPUT);
 
-  bufPointer += 6;
-
   crypto_kem_enc(ct, bufPointer, pk, coins);
-
   bufPointer += MLKEM_SSBYTES;
+  memcpy(bufPointer, ct, MLKEM_CIPHERTEXTBYTES);
+  bufPointer += MLKEM_CIPHERTEXTBYTES;
+
   pk += MLKEM_PUBLICKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
-  lib25519_dh(ct, X25519_BASE, coins);
-  lib25519_dh(bufPointer, pk, coins);
+  crypto_dkem_enc(ct, bufPointer, pk, coins);
   bufPointer += DH_BYTES;
 
   memcpy(bufPointer, ct, DH_BYTES);
   bufPointer += DH_BYTES;
+
   memcpy(bufPointer, pk, DH_BYTES);
 
-  bufPointer -= 102; // go back 132 - 32 bytes
+  bufPointer -= MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES;
 
   sha3_256(ss, bufPointer, GHPC_PRFINPUT);
   free(bufPointer);
@@ -95,22 +91,23 @@ void crypto_gkem_dec(uint8_t *ss,
 {
   unsigned char *bufPointer = malloc(GHPC_PRFINPUT);
 
-  bufPointer += 6;
-
   crypto_kem_dec(bufPointer, ct, sk);
   bufPointer += MLKEM_SSBYTES;
+  memcpy(bufPointer, ct, MLKEM_CIPHERTEXTBYTES);
+  bufPointer += MLKEM_CIPHERTEXTBYTES;
+
   sk += MLKEM_SECRETKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
 
-  lib25519_dh(bufPointer, ct, sk);
+  crypto_dkem_dec(bufPointer, ct, sk);
   bufPointer += DH_BYTES;
-  sk += DH_BYTES;
 
   memcpy(bufPointer, ct, DH_BYTES);
   bufPointer += DH_BYTES;
-  memcpy(bufPointer, sk, DH_BYTES);
 
-  bufPointer -= 102; // go back 132 - 32 bytes
+  lib25519_nG_montgomery25519(bufPointer, sk);
+
+  bufPointer -= MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES;
 
   sha3_256(ss, bufPointer, GHPC_PRFINPUT);
   free(bufPointer);
