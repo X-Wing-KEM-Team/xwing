@@ -25,21 +25,21 @@ int main(void) {
     fclose(urandom);
 
     for(i = 0; i < NTESTS; ++i) {
-        // t[i] = cpucycles();
+        t[i] = cpucycles();
         crypto_gkem_keypair(pk, sk, randomness0);
     }
     print_results("gkem_keypair:", t, NTESTS);
 
 
     for(i = 0; i < NTESTS; ++i) {
-        // t[i] = cpucycles();
+        t[i] = cpucycles();
         crypto_gkem_enc(ct, pt, pk, randomness1);
     }
     print_results("gkem_enc:", t, NTESTS);
 
 
     for(i = 0; i < NTESTS; ++i) {
-        // t[i] = cpucycles();
+        t[i] = cpucycles();
         crypto_gkem_dec(pt, ct, sk);
     }
     print_results("gkem_dec:", t, NTESTS);
