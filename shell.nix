@@ -67,6 +67,7 @@ sudo cpupower frequency-set -f 3.6Ghz
 make
 for i in {0..100}; do echo "$i"; src/crypto_kem/xwing/ref/test/test_speed >> results_xwing_ref; src/crypto_kem/xwing/avx2/test/test_speed >> results_xwing_avx2; done
 for i in {0..100}; do echo "$i"; src/crypto_kem/ghpc/ref/test/test_speed >> results_ghpc_ref; src/crypto_kem/ghpc/avx2/test/test_speed >> results_ghpc_avx2; done
+python ./analyse.py
     '';
   };
 in
@@ -77,6 +78,7 @@ pkgs.mkShell {
     valgrind
     benchmark
     gef
+    python3
    ];
 
    buildInputs = [
