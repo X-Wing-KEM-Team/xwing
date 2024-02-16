@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <lib25519.h>
 #include <string.h>
 #include "xkem.h"
@@ -29,9 +30,12 @@ void crypto_xkem_keypair(unsigned char *pk,
   randomness += 2 * XWING_SYMBYTES;
   lib25519_nG_montgomery25519(pk, randomness);
 
-  memcpy(sk, randomness, DH_BYTES);
-  sk += DH_BYTES;
-  memcpy(sk, pk, DH_BYTES);
+  int i;
+  for (i = 0; i < DH_BYTES; i++)
+  {
+    sk[i] = randomness[i];
+    sk[i + DH_BYTES] = pk[i];
+  }
 }
 
 /*************************************************
@@ -51,30 +55,32 @@ void crypto_xkem_enc(unsigned char *ct,
                      const unsigned char *pk,
                      const unsigned char *coins)
 {
-  unsigned char *bufPointer = malloc(XWING_PRFINPUT);
+  unsigned char bufPointer[XWING_PRFINPUT];
+  unsigned char mlkemBuffer[MLKEM_SSBYTES];
+  unsigned char dhBuffer[DH_BYTES];
 
-  memcpy(bufPointer, XWING_LABEL, 6);
-  bufPointer += 6;
+  int i;
+  for (i = 0; i < 6; i++)
+    bufPointer[i] = XWING_LABEL[i];
 
-  crypto_kem_enc_derand(ct, bufPointer, pk, coins);
+  crypto_kem_enc_derand(ct, mlkemBuffer, pk, coins);
 
-  bufPointer += MLKEM_SSBYTES;
   pk += MLKEM_PUBLICKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
   lib25519_nG_montgomery25519(ct, coins);
-  lib25519_dh(bufPointer, pk, coins);
-  bufPointer += DH_BYTES;
+  lib25519_dh(dhBuffer, pk, coins);
 
-  memcpy(bufPointer, ct, DH_BYTES);
-  bufPointer += DH_BYTES;
-  memcpy(bufPointer, pk, DH_BYTES);
-
-  bufPointer -= 102; // go back 132 - 32 bytes
+  for (i = 0; i < DH_BYTES; i++)
+  {
+    bufPointer[i + 6] = mlkemBuffer[i];
+    bufPointer[i + 6 + MLKEM_SSBYTES] = dhBuffer[i];
+    bufPointer[i + 6 + MLKEM_SSBYTES + DH_BYTES] = ct[i];
+    bufPointer[i + 6 + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = pk[i];
+  }
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
-  free(bufPointer);
 }
 
 /*************************************************
@@ -91,26 +97,28 @@ void crypto_xkem_dec(uint8_t *ss,
                      const uint8_t *ct,
                      const uint8_t *sk)
 {
-  unsigned char *bufPointer = malloc(XWING_PRFINPUT);
+  unsigned char bufPointer[XWING_PRFINPUT];
+  unsigned char mlkemBuffer[MLKEM_SSBYTES];
+  unsigned char dhBuffer[DH_BYTES];
 
-  memcpy(bufPointer, XWING_LABEL, 6);
-  bufPointer += 6;
+  int i;
+  for (i = 0; i < 6; i++)
+    bufPointer[i] = XWING_LABEL[i];
 
-  crypto_kem_dec(bufPointer, ct, sk);
-  bufPointer += MLKEM_SSBYTES;
+  crypto_kem_dec(mlkemBuffer, ct, sk);
   sk += MLKEM_SECRETKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
 
-  lib25519_dh(bufPointer, ct, sk);
-  bufPointer += DH_BYTES;
+  lib25519_dh(dhBuffer, ct, sk);
   sk += DH_BYTES;
 
-  memcpy(bufPointer, ct, DH_BYTES);
-  bufPointer += DH_BYTES;
-  memcpy(bufPointer, sk, DH_BYTES);
-
-  bufPointer -= 102; // go back 132 - 32 bytes
+  for (i = 0; i < DH_BYTES; i++)
+  {
+    bufPointer[i + 6] = mlkemBuffer[i];
+    bufPointer[i + 6 + MLKEM_SSBYTES] = dhBuffer[i];
+    bufPointer[i + 6 + MLKEM_SSBYTES + DH_BYTES] = ct[i];
+    bufPointer[i + 6 + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = sk[i];
+  }
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
-  free(bufPointer);
 }
