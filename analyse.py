@@ -6,28 +6,30 @@ def parse_file(filename: str):
 
     with open(filename, "r") as f:
         lines = map(lambda line: line.strip(), f.readlines())
-        
+
     current_function = None
     for line in lines:
+        if len(line) == 0:
+            continue
         if line[-1] == ":":
             current_function = line[:-1]
             if current_function not in functions:
                 functions[current_function] = []
             continue
 
-        functions[current_function] = int(line)
+        functions[current_function].append(int(line))
 
     return functions
 
 def analyse(functions):
     for function in functions:
-        print(function)
-        print(f"Mean: {statistics.mean(functions[function])}")
-        print(f"Median: {statistics.median(functions[function])}")
+        print(f"{function}:")
+        print(f"Mean: {round(statistics.mean(functions[function]))}")
+        print(f"Median: {round(statistics.median(functions[function]))}")
         print()
 
 
 for filename in glob.iglob("./results_*"):
     functions = parse_file(filename)
+    print(filename)
     analyse(functions)
-    
