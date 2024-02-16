@@ -8,7 +8,7 @@ OS     := $(shell uname -s)
 
 default: test
 
-test: test/test_gkem_functionality
+test: test/test_gkem_functionality test/test_speed
 
 HEADERS = gkem.h ../../mlkem/ref/symmetric.h ../../mlkem/ref/reduce.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/poly.h params.h ../../mlkem/ref/ntt.h ../../mlkem/ref/kem.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/fips202.h ../../mlkem/ref/cbd.h ../../mlkem/ref/params.h ../../dhkem/ref/kem.h ../../dhkem/ref/extractexpand.h ../../dhkem/ref/derivekeypair.h ../../dhkem/ref/params.h test/cpucycles.h test/speed_print.h
 

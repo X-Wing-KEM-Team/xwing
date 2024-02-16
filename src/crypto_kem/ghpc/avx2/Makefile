@@ -8,7 +8,7 @@ OS     := $(shell uname -s)
 
 default: test
 
-test: test/test_gkem_functionality
+test: test/test_gkem_functionality test/test_speed
 
 HEADERS = gkem.h  ../../kyber/avx2/params.h ../../kyber/avx2/align.h ../../kyber/avx2/kem.h ../../kyber/avx2/indcpa.h ../../kyber/avx2/polyvec.h ../../kyber/avx2/poly.h ../../kyber/avx2/reduce.h fq.inc shuffle.inc ../../kyber/avx2/ntt.h ../../kyber/avx2/consts.h ../../kyber/avx2/rejsample.h ../../kyber/avx2/cbd.h ../../kyber/avx2/verify.h ../../kyber/avx2/symmetric.h ../../kyber/avx2/randombytes.h ../../kyber/avx2/fips202.h ../../kyber/avx2/fips202x4.h ../../dhkem/ref/kem.h ../../dhkem/ref/extractexpand.h ../../dhkem/ref/derivekeypair.h ../../dhkem/ref/params.h test/cpucycles.h test/speed_print.h
 
