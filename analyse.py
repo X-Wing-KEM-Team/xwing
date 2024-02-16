@@ -1,5 +1,6 @@
 import glob
 import statistics
+import re
 
 def parse_file(filename: str):
     functions = {}
@@ -17,7 +18,7 @@ def parse_file(filename: str):
                 functions[current_function] = []
             continue
 
-        functions[current_function].append(int(line))
+        functions[current_function].append(int(re.sub("[^0-9]", "", line)))
 
     return functions
 
