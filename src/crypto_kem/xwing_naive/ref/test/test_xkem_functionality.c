@@ -5,7 +5,6 @@
 
 #include "../params.h"
 #include "../xkem.h"
-#include "test_vectors.h"
 
 static int testFunctionality()
 {
