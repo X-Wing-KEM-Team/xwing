@@ -7,6 +7,7 @@
 #include "params.h"
 #include "../../mlkem/ref/symmetric.h"
 #include "../../mlkem/ref/kem.h"
+
 /*************************************************
  * Name:        crypto_xkem_keypair
  *
@@ -73,10 +74,13 @@ void crypto_xkem_enc(unsigned char *ct,
   for (i = 0; i < DH_BYTES; i++)
   {
     bufPointer[i + 6] = mlkemBuffer[i];
-    bufPointer[i + 6 + MLKEM_SSBYTES] = dhBuffer[i];
-    bufPointer[i + 6 + MLKEM_SSBYTES + DH_BYTES] = ct[i];
-    bufPointer[i + 6 + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = pk[i];
+    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES] = dhBuffer[i];
+    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES] = ct[i];
+    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = pk[i];
   }
+
+  for (i = MLKEM_SSBYTES; i < MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES; i++)
+    bufPointer[i + 6] = ct[i - MLKEM_CIPHERTEXTBYTES];
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
 }
@@ -114,13 +118,12 @@ void crypto_xkem_dec(uint8_t *ss,
   {
     bufPointer[i + 6] = mlkemBuffer[i];
     bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES] = dhBuffer[i];
-    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + DH_BYTES] = ct[i];
-    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES +  + DH_BYTES + DH_BYTES] = sk[i];
+    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES] = ct[i];
+    bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = sk[i];
   }
 
   for (i = MLKEM_SSBYTES; i < MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES; i++)
-    bufPointer[i] = ct[i - MLKEM_SSBYTES - MLKEM_CIPHERTEXTBYTES];
-
+    bufPointer[i + 6] = ct[i - MLKEM_CIPHERTEXTBYTES];
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
 }
