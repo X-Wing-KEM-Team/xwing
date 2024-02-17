@@ -14,8 +14,7 @@ void crypto_dkem_keypair(unsigned char *pk,
                          unsigned char *sk,
                          const unsigned char *randomness)
 {
-    memcpy(sk, randomness, DH_BYTES);
-
+    *sk = *randomness;
     lib25519_nG_montgomery25519(pk, sk);
 }
 
@@ -24,41 +23,32 @@ void crypto_dkem_enc(unsigned char *c,
                      const unsigned char *pk,
                      const unsigned char *coins)
 {
-    unsigned char *skE, *dh, *kemContext;
-    skE = malloc(DH_BYTES);
-    dh = malloc(DH_BYTES);
-    kemContext = malloc(2 * DH_BYTES);
-
+    unsigned char skE[DH_BYTES], dh[DH_BYTES], kemContext[DH_BYTES * 2];
+    int i;
     deriveKeyPair(skE, c, coins);
     lib25519_dh(dh, pk, skE);
-    memcpy(kemContext, c, DH_BYTES);
-    kemContext += DH_BYTES;
-    memcpy(kemContext, pk, DH_BYTES);
-    kemContext -= DH_BYTES;
+
+    for (i = 0; i < DH_BYTES; i++)
+    {
+        kemContext[i] = c[i];
+        kemContext[i + DH_BYTES] = pk[i];
+    }
     extractAndExpand(m, dh, kemContext);
-    free(skE);
-    free(dh);
-    free(kemContext);
 }
 
 void crypto_dkem_dec(unsigned char *m,
                      const unsigned char *c,
                      const unsigned char *sk)
 {
-    unsigned char *dh, *kemContext, *pk;
-    dh = malloc(DH_BYTES);
-    pk = malloc(DH_BYTES);
-    kemContext = malloc(2 * DH_BYTES);
-
+    unsigned char pk[DH_BYTES], dh[DH_BYTES], kemContext[DH_BYTES * 2];
+    int i;
     lib25519_dh(dh, c, sk);
     lib25519_nG_montgomery25519(pk, sk);
 
-    memcpy(kemContext, c, DH_BYTES);
-    kemContext += DH_BYTES;
-    memcpy(kemContext, pk, DH_BYTES);
-    kemContext -= DH_BYTES;
+    for (i = 0; i < DH_BYTES; i++)
+    {
+        kemContext[i] = c[i];
+        kemContext[i + DH_BYTES] = pk[i];
+    }
     extractAndExpand(m, dh, kemContext);
-    free(dh);
-    free(kemContext);
-    free(pk);
 }
