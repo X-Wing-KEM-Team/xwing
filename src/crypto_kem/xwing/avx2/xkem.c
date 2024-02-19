@@ -60,9 +60,8 @@ void crypto_xkem_enc(unsigned char *ct,
   unsigned char dhBuffer[DH_BYTES];
 
   int i;
-  for (i = 0; i < 6; i++)
-    bufPointer[i] = XWING_LABEL[i];
-
+  memcpy(bufPointer, XWING_LABEL, 6);
+  
   crypto_kem_enc_derand(ct, mlkemBuffer, pk, coins);
 
   pk += MLKEM_PUBLICKEYBYTES;
@@ -101,9 +100,7 @@ void crypto_xkem_dec(uint8_t *ss,
   unsigned char mlkemBuffer[MLKEM_SSBYTES];
   unsigned char dhBuffer[DH_BYTES];
 
-  int i;
-  for (i = 0; i < 6; i++)
-    bufPointer[i] = XWING_LABEL[i];
+  memcpy(bufPointer, XWING_LABEL, 6);
 
   crypto_kem_dec(mlkemBuffer, ct, sk);
   sk += MLKEM_SECRETKEYBYTES;
@@ -112,6 +109,7 @@ void crypto_xkem_dec(uint8_t *ss,
   lib25519_dh(dhBuffer, ct, sk);
   sk += DH_BYTES;
 
+  int i;
   for (i = 0; i < DH_BYTES; i++)
   {
     bufPointer[i + 6] = mlkemBuffer[i];

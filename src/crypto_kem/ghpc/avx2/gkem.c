@@ -72,8 +72,7 @@ void crypto_gkem_enc(unsigned char *ct,
     bufPointer[i + MLKEM_SSBYTES + MLKEM_CIPHERTEXTBYTES + DH_BYTES] = ct[i];
   }
 
-  for (i = MLKEM_SSBYTES; i < MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES; i++)
-    bufPointer[i] = ct[i - MLKEM_SSBYTES - MLKEM_CIPHERTEXTBYTES];
+  memcpy(bufPointer + MLKEM_SSBYTES, ct - MLKEM_CIPHERTEXTBYTES, MLKEM_CIPHERTEXTBYTES);
 
   sha3_256(ss, bufPointer, GHPC_PRFINPUT);
 }
@@ -112,8 +111,7 @@ void crypto_gkem_dec(uint8_t *ss,
     bufPointer[i + MLKEM_SSBYTES + MLKEM_CIPHERTEXTBYTES + DH_BYTES] = ct[i];
   }
 
-  for (i = MLKEM_SSBYTES; i < MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES; i++)
-    bufPointer[i] = ct[i - MLKEM_SSBYTES - MLKEM_CIPHERTEXTBYTES];
+  memcpy(bufPointer + MLKEM_SSBYTES, ct - MLKEM_CIPHERTEXTBYTES, MLKEM_CIPHERTEXTBYTES);
 
   sha3_256(ss, bufPointer, GHPC_PRFINPUT);
 }

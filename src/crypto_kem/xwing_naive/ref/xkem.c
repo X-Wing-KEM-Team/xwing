@@ -59,8 +59,7 @@ void crypto_xkem_enc(unsigned char *ct,
   unsigned char dhBuffer[DH_BYTES];
 
   int i;
-  for (i = 0; i < 6; i++)
-    bufPointer[i] = XWING_LABEL[i];
+  memcpy(bufPointer, XWING_LABEL, 6);
 
   crypto_kem_enc(ct, mlkemBuffer, pk, coins);
 
@@ -79,8 +78,7 @@ void crypto_xkem_enc(unsigned char *ct,
     bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = pk[i];
   }
 
-  for (i = MLKEM_SSBYTES; i < MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES; i++)
-    bufPointer[i + 6] = ct[i - MLKEM_CIPHERTEXTBYTES];
+  memcpy(bufPointer + MLKEM_SSBYTES + 6, ct - MLKEM_CIPHERTEXTBYTES, MLKEM_CIPHERTEXTBYTES);
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
 }
@@ -104,8 +102,7 @@ void crypto_xkem_dec(uint8_t *ss,
   unsigned char dhBuffer[DH_BYTES];
 
   int i;
-  for (i = 0; i < 6; i++)
-    bufPointer[i] = XWING_LABEL[i];
+  memcpy(bufPointer, XWING_LABEL, 6);
 
   crypto_kem_dec(mlkemBuffer, ct, sk);
   sk += MLKEM_SECRETKEYBYTES;
@@ -122,8 +119,7 @@ void crypto_xkem_dec(uint8_t *ss,
     bufPointer[i + 6 + MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES + DH_BYTES + DH_BYTES] = sk[i];
   }
 
-  for (i = MLKEM_SSBYTES; i < MLKEM_CIPHERTEXTBYTES + MLKEM_SSBYTES; i++)
-    bufPointer[i + 6] = ct[i - MLKEM_CIPHERTEXTBYTES];
+  memcpy(bufPointer + MLKEM_SSBYTES + 6, ct - MLKEM_CIPHERTEXTBYTES, MLKEM_CIPHERTEXTBYTES);
 
   sha3_256(ss, bufPointer, XWING_PRFINPUT);
 }
