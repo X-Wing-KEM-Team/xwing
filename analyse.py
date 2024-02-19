@@ -1,8 +1,40 @@
 import glob
 import statistics
 import json
+import platform
+import psutil
+import platform
+import subprocess
+import re
+
 
 algorithms = {}
+
+
+def get_system_info():
+    cpufreq = psutil.cpu_freq()
+    cpuname = ""
+    algorithms["system_info"] = {}
+
+    command = "cat /proc/cpuinfo"
+    all_info = subprocess.check_output(command, shell=True).decode().strip()
+    for line in all_info.split("\n"):
+        if "model name" in line:
+            cpuname = re.sub(".*model name.*:", "", line, 1)
+
+    algorithms["system_info"]["platform"] = platform.system()
+    algorithms["system_info"]["platform-release"] = platform.release()
+    algorithms["system_info"]["platform-version"] = platform.version()
+    algorithms["system_info"]["architecture"] = platform.machine()
+    algorithms["system_info"]["processor"] = cpuname
+    algorithms["system_info"]["min_requency"] = f"{cpufreq.min:.2f}Mhz"
+    algorithms["system_info"]["max_requency"] = f"{cpufreq.max:.2f}Mhz"
+    algorithms["system_info"]["frequency_used"] = "3.6Mhz"
+    algorithms["system_info"]["physical cores"] = psutil.cpu_count(logical=False)
+    algorithms["system_info"]["total cores"] = psutil.cpu_count(logical=True)
+    algorithms["system_info"][
+        "ram"
+    ] = f"{round(psutil.virtual_memory().total/1000000000, 2)} GB"
 
 
 def parse_file(filename: str):
@@ -38,10 +70,13 @@ def analyse(filename, functions):
         ] = round(statistics.mean(functions[function]))
 
 
-for filename in glob.iglob("./results_*"):
-    functions = parse_file(filename)
-    print(filename)
-    analyse(filename, functions)
+if __name__ == "__main__":
+    get_system_info()
 
-with open("test_speed_results.json", "w") as write_file:
-    json.dump(algorithms, write_file, indent=2)
+    for filename in glob.iglob("./results_*"):
+        functions = parse_file(filename)
+        print(filename)
+        analyse(filename, functions)
+
+    with open("test_speed_results.json", "w") as write_file:
+        json.dump(algorithms, write_file, indent=2)

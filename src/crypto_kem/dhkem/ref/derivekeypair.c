@@ -16,3 +16,4 @@ void deriveKeyPair(unsigned char *sk, unsigned char *pk, const unsigned char *ik
     crypto_kdf_hkdf_sha256_expand(sk, DH_BYTES, (char *)labeled_info, LABELED_INFO_DERIVEKEYPAIR_BYTES, dkpPrk);
     lib25519_nG_montgomery25519(pk, sk);
 }
+
