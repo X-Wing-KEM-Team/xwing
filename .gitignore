@@ -56,8 +56,10 @@ src/crypto_kem/xwing/test/test_xkem_functionality
 .vscode
 .direnv
 
-# Test binaries
+# Test binaries and files
 test_*_functionality
 test_speed
 results_*
 .gdb_history
+test_speed_results.json
+
