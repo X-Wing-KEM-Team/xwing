@@ -23,16 +23,11 @@ void crypto_dkem_enc(unsigned char *c,
                      const unsigned char *pk,
                      const unsigned char *coins)
 {
-    unsigned char skE[DH_BYTES], dh[DH_BYTES], kemContext[DH_BYTES * 2];
-    int i;
+    unsigned char skE[DH_BYTES], dh[DH_BYTES], kemContext[KEM_CONTEXT_BYTES];
     deriveKeyPair(skE, c, coins);
     lib25519_dh(dh, pk, skE);
-
-    for (i = 0; i < DH_BYTES; i++)
-    {
-        kemContext[i] = c[i];
-        kemContext[i + DH_BYTES] = pk[i];
-    }
+    memcpy(kemContext, c, DH_BYTES);
+    memcpy(kemContext + DH_BYTES, pk, DH_BYTES);
     extractAndExpand(m, dh, kemContext);
 }
 
@@ -40,15 +35,10 @@ void crypto_dkem_dec(unsigned char *m,
                      const unsigned char *c,
                      const unsigned char *sk)
 {
-    unsigned char pk[DH_BYTES], dh[DH_BYTES], kemContext[DH_BYTES * 2];
-    int i;
+    unsigned char pk[DH_BYTES], dh[DH_BYTES], kemContext[KEM_CONTEXT_BYTES];
     lib25519_dh(dh, c, sk);
     lib25519_nG_montgomery25519(pk, sk);
-
-    for (i = 0; i < DH_BYTES; i++)
-    {
-        kemContext[i] = c[i];
-        kemContext[i + DH_BYTES] = pk[i];
-    }
+    memcpy(kemContext, c, DH_BYTES);
+    memcpy(kemContext + DH_BYTES, pk, DH_BYTES);
     extractAndExpand(m, dh, kemContext);
 }
