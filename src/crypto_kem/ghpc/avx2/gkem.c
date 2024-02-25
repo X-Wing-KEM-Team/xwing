@@ -47,34 +47,23 @@ void crypto_gkem_enc(unsigned char *ct,
                      const unsigned char *pk,
                      const unsigned char *coins)
 {
-  unsigned char bufPointer[GHPC_PRFINPUT];
-  unsigned char mlkemBuffer[MLKEM_SSBYTES];
-  unsigned char dhBuffer[DH_BYTES];
+  unsigned char buffer[GHPC_PRFINPUT];
+  unsigned char *bufferPointer = buffer;
 
-  crypto_kem_enc_derand(ct, mlkemBuffer, pk, coins); // h
-
-  // memcpy(bufPointer, ct, MLKEM_CIPHERTEXTBYTES); h
+  crypto_kem_enc_derand(ct, bufferPointer, pk, coins); // h
 
   pk += MLKEM_PUBLICKEYBYTES;
+  bufferPointer += MLKEM_SSBYTES;
+  memcpy(bufferPointer, ct, MLKEM_CIPHERTEXTBYTES);
+  bufferPointer += MLKEM_CIPHERTEXTBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
   coins += DH_BYTES;
 
-  crypto_dkem_enc(ct, dhBuffer, pk, coins);
+  crypto_dkem_enc(ct, bufferPointer, pk, coins);
+  bufferPointer += DH_BYTES;
+  memcpy(bufferPointer, ct, DH_BYTES);
 
-  // memcpy(bufPointer, ct, DH_BYTES); h
-
-  int i;
-
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    bufPointer[i] = mlkemBuffer[i];
-    bufPointer[i + MLKEM_SSBYTES + MLKEM_CIPHERTEXTBYTES] = dhBuffer[i];
-    bufPointer[i + MLKEM_SSBYTES + MLKEM_CIPHERTEXTBYTES + DH_BYTES] = ct[i];
-  }
-
-  memcpy(bufPointer + MLKEM_SSBYTES, ct - MLKEM_CIPHERTEXTBYTES, MLKEM_CIPHERTEXTBYTES);
-
-  sha3_256(ss, bufPointer, GHPC_PRFINPUT);
+  sha3_256(ss, buffer, GHPC_PRFINPUT);
 }
 
 /*************************************************
@@ -91,27 +80,18 @@ void crypto_gkem_dec(uint8_t *ss,
                      const uint8_t *ct,
                      const uint8_t *sk)
 {
-  unsigned char bufPointer[GHPC_PRFINPUT];
-  unsigned char mlkemBuffer[MLKEM_SSBYTES];
-  unsigned char dhBuffer[DH_BYTES];
+  unsigned char buffer[GHPC_PRFINPUT];
+  unsigned char *bufferPointer = buffer;
 
-  crypto_kem_dec(mlkemBuffer, ct, sk);
-
+  crypto_kem_dec(bufferPointer, ct, sk);
+  bufferPointer += MLKEM_SSBYTES;
+  memcpy(bufferPointer, ct, MLKEM_CIPHERTEXTBYTES);
+  bufferPointer += MLKEM_CIPHERTEXTBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   ct += MLKEM_CIPHERTEXTBYTES;
 
-  crypto_dkem_dec(dhBuffer, ct, sk);
-
-  int i;
-
-  for (i = 0; i < DH_BYTES; i++)
-  {
-    bufPointer[i] = mlkemBuffer[i];
-    bufPointer[i + MLKEM_SSBYTES + MLKEM_CIPHERTEXTBYTES] = dhBuffer[i];
-    bufPointer[i + MLKEM_SSBYTES + MLKEM_CIPHERTEXTBYTES + DH_BYTES] = ct[i];
-  }
-
-  memcpy(bufPointer + MLKEM_SSBYTES, ct - MLKEM_CIPHERTEXTBYTES, MLKEM_CIPHERTEXTBYTES);
-
-  sha3_256(ss, bufPointer, GHPC_PRFINPUT);
+  crypto_dkem_dec(bufferPointer, ct, sk);
+  bufferPointer += DH_BYTES;
+  memcpy(bufferPointer, ct, DH_BYTES);
+  sha3_256(ss, buffer, GHPC_PRFINPUT);
 }
