@@ -52,7 +52,7 @@ void crypto_xkem_enc(unsigned char *ct,
   unsigned char buffer[XWING_PRFINPUT];
   unsigned char *bufferPointer = buffer;
 
-  memcpy(buffer, XWING_LABEL, 6);
+  memcpy(bufferPointer, XWING_LABEL, 6);
   bufferPointer += 6;
 
   crypto_kem_enc(ct, bufferPointer, pk, coins);
