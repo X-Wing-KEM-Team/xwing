@@ -10,11 +10,11 @@ default: test
 
 test: test/test_xkem_functionality test/test_speed
 
-MLKEMHEADERS =  ../../mlkem/ref/cbd.h ../../mlkem/ref/fips202.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/kem.h ../../mlkem/ref/ntt.h ../../mlkem/ref/params.h ../../mlkem/ref/poly.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/reduce.h ../../mlkem/ref/symmetric.h
+MLKEMHEADERS =  ../../mlkem/ref/cbd.h ../../mlkem/ref/fips202.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/kem.h ../../mlkem/ref/ntt.h ../../mlkem/ref/params.h ../../mlkem/ref/poly.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/randombytes.h ../../mlkem/ref/reduce.h ../../mlkem/ref/symmetric.h
 HEADERS = $(MLKEMHEADERS) xkem.h params.h
 TESTHEADERS = $(HEADERS) test/test_vectors.h test/cpucycles.h test/speed_print.h
 
-MLKEMSOURCES = ../../mlkem/ref/cbd.c ../../mlkem/ref/fips202.c ../../mlkem/ref/indcpa.c ../../mlkem/ref/kem.c ../../mlkem/ref/ntt.c ../../mlkem/ref/poly.c ../../mlkem/ref/polyvec.c ../../mlkem/ref/reduce.c ../../mlkem/ref/symmetric-fips202.c
+MLKEMSOURCES = ../../mlkem/ref/cbd.c ../../mlkem/ref/fips202.c ../../mlkem/ref/indcpa.c ../../mlkem/ref/kem.c ../../mlkem/ref/ntt.c ../../mlkem/ref/poly.c ../../mlkem/ref/polyvec.c ../../mlkem/ref/randombytes.c ../../mlkem/ref/reduce.c ../../mlkem/ref/symmetric-fips202.c
 SOURCES =  $(MLKEMSOURCES) xkem.c
 TESTSOURCES = $(SOURCES) test/cpucycles.c test/speed_print.c 
 
