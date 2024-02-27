@@ -2,7 +2,7 @@
 
 -include ../../../../Makefile.conf
 
-CC     ?= /usr/bin/gcc
+CC     ?= /usr/bin/cc
 CFLAGS := -Wall -Wextra -g -O3 -fomit-frame-pointer -l25519
 OS     := $(shell uname -s)
 
@@ -10,15 +10,19 @@ default: test
 
 test: test/test_xkem_functionality test/test_speed
 
-HEADERS = xkem.h test/test_vectors.h ../../mlkem/ref/symmetric.h ../../mlkem/ref/reduce.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/poly.h params.h ../../mlkem/ref/ntt.h ../../mlkem/ref/kem.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/fips202.h ../../mlkem/ref/cbd.h ../../mlkem/ref/params.h test/cpucycles.h test/speed_print.h test/test_vectors.h
+MLKEMHEADERS =  ../../mlkem/ref/cbd.h ../../mlkem/ref/fips202.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/kem.h ../../mlkem/ref/ntt.h ../../mlkem/ref/params.h ../../mlkem/ref/poly.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/reduce.h ../../mlkem/ref/symmetric.h
+HEADERS = $(MLKEMHEADERS) xkem.h params.h
+TESTHEADERS = $(HEADERS) test/test_vectors.h test/cpucycles.h test/speed_print.h
 
-SOURCES =  xkem.c ../../mlkem/ref/symmetric-fips202.c ../../mlkem/ref/reduce.c ../../mlkem/ref/polyvec.c ../../mlkem/ref/poly.c ../../mlkem/ref/ntt.c ../../mlkem/ref/kem.c ../../mlkem/ref/indcpa.c ../../mlkem/ref/fips202.c ../../mlkem/ref/cbd.c test/cpucycles.c test/speed_print.c
+MLKEMSOURCES = ../../mlkem/ref/cbd.c ../../mlkem/ref/fips202.c ../../mlkem/ref/indcpa.c ../../mlkem/ref/kem.c ../../mlkem/ref/ntt.c ../../mlkem/ref/poly.c ../../mlkem/ref/polyvec.c ../../mlkem/ref/reduce.c ../../mlkem/ref/symmetric-fips202.c
+SOURCES =  $(MLKEMSOURCES) xkem.c
+TESTSOURCES = $(SOURCES) test/cpucycles.c test/speed_print.c 
 
-test/test_xkem_functionality: test/test_xkem_functionality.c $(HEADERS) $(SOURCES) $(INCS)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $<
+test/test_xkem_functionality: $(TESTSOURCES) $(TESTHEADERS) test/test_xkem_functionality.c
+	$(CC) $(CFLAGS) -Dmlkem_K=3 $(TESTSOURCES) test/test_xkem_functionality.c -o $@
 
-test/test_speed: test/test_speed.c $(HEADERS) $(SOURCES) $(INCS)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $<
+test/test_speed: $(TESTSOURCES) $(TESTHEADERS) test/test_speed.c
+	$(CC) $(CFLAGS) -Dmlkem_K=3 $(TESTSOURCES) test/test_speed.c -o $@
 
 .PHONY: clean
 
