@@ -1,4 +1,4 @@
-#include "../../mlkem/avx2/consts.h"
+#include "../../kyber/avx2/consts.h"
 .include "shuffle.inc"
 
 .macro mul rh0,rh1,rh2,rh3,zl0=15,zl1=15,zh0=2,zh1=2

@@ -1,1 +1,0 @@
-../../xwing/avx2/fq.inc

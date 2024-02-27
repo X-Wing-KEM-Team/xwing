@@ -5,9 +5,9 @@
 #include <lib25519.h>
 #include "xkem.h"
 #include "params.h"
-#include "../../mlkem/ref/symmetric.h"
-#include "../../mlkem/ref/kem.h"
-#include "../../mlkem/ref/randombytes.h"
+#include "../../kyber/ref/symmetric.h"
+#include "../../kyber/ref/kem.h"
+#include "../../kyber/ref/randombytes.h"
 
 /*************************************************
  * Name:        crypto_xkem_keypair_derand
@@ -24,9 +24,9 @@ int crypto_xkem_keypair_derand(unsigned char *pk,
                                 unsigned char *sk,
                                 const unsigned char *randomness)
 {
-  crypto_kem_keypair(pk, sk, randomness);
-  pk += MLKEM_PUBLICKEYBYTES;
-  sk += MLKEM_SECRETKEYBYTES;
+  crypto_kem_keypair_derand(pk, sk, randomness);
+  pk += KYBER_PUBLICKEYBYTES;
+  sk += KYBER_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
   lib25519_nG_montgomery25519(pk, randomness);
   memcpy(sk, randomness, DH_BYTES);
@@ -74,12 +74,12 @@ int crypto_xkem_enc_derand(unsigned char *ct,
   memcpy(buffer, XWING_LABEL, 6);
   bufferPointer += 6;
 
-  crypto_kem_enc(ct, bufferPointer, pk, coins);
+  crypto_kem_enc_derand(ct, bufferPointer, pk, coins);
 
-  pk += MLKEM_PUBLICKEYBYTES;
-  ct += MLKEM_CIPHERTEXTBYTES;
+  pk += KYBER_PUBLICKEYBYTES;
+  ct += KYBER_CIPHERTEXTBYTES;
   coins += DH_BYTES;
-  bufferPointer += MLKEM_SSBYTES;
+  bufferPointer += KYBER_SSBYTES;
 
   lib25519_nG_montgomery25519(ct, coins);
   lib25519_dh(bufferPointer, pk, coins);
@@ -133,9 +133,9 @@ int crypto_xkem_dec(uint8_t *ss,
 
   crypto_kem_dec(bufferPointer, ct, sk);
 
-  sk += MLKEM_SECRETKEYBYTES;
-  ct += MLKEM_CIPHERTEXTBYTES;
-  bufferPointer += MLKEM_SSBYTES;
+  sk += KYBER_SECRETKEYBYTES;
+  ct += KYBER_CIPHERTEXTBYTES;
+  bufferPointer += KYBER_SSBYTES;
 
   lib25519_dh(bufferPointer, ct, sk);
   sk += DH_BYTES;

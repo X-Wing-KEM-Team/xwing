@@ -1,4 +1,4 @@
-#include "../../mlkem/avx2/consts.h"
+#include "../../kyber/avx2/consts.h"
 
 .macro schoolbook off
 vmovdqa		_16XQINV*2(%rcx),%ymm0
