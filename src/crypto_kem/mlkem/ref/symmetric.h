@@ -9,7 +9,7 @@
 #include "sha2.h"
 
 #if (MLKEM_SSBYTES != 32)
-#error "90s variant of Kyber can only generate keys of length 256 bits"
+#error "90s variant of mlkem can only generate keys of length 256 bits"
 #endif
 
 #define hash_h(OUT, IN, INBYTES) sha256(OUT, IN, INBYTES)

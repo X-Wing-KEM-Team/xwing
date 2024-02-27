@@ -1,5 +1,7 @@
-#ifndef PARAMS_X
-#define PARAMS_X
+#ifndef PARAMS_H
+#define PARAMS_H
+
+#define xwing_NAMESPACE(s) xwing_ref_##s
 
 #define MLKEM_K 3
 #define MLKEM_N 256

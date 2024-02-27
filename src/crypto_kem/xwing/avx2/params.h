@@ -1,5 +1,7 @@
-#ifndef PARAMS_X
-#define PARAMS_X
+#ifndef PARAMS_HA
+#define PARAMS_HA
+
+#define xwing_NAMESPACE(s) xwing_avx2_##s
 
 #define MLKEM_K 3
 #define MLKEM_N 256
@@ -30,4 +32,3 @@
 #define XWING_LABEL "\\.//^\\"
 
 #endif
-

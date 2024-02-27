@@ -26,14 +26,14 @@ int main(void) {
 
     for(i = 0; i < NTESTS; ++i) {
         t[i] = cpucycles();
-        crypto_xkem_keypair(pk, sk, randomness0);
+        crypto_xkem_keypair_derand(pk, sk, randomness0);
     }
     print_results("xkem_keypair:", t, NTESTS);
 
 
     for(i = 0; i < NTESTS; ++i) {
         t[i] = cpucycles();
-        crypto_xkem_enc(ct, pt, pk, randomness1);
+        crypto_xkem_enc_derand(ct, pt, pk, randomness1);
     }
     print_results("xkem_enc:", t, NTESTS);
 

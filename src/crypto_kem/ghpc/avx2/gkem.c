@@ -4,8 +4,8 @@
 #include <lib25519.h>
 #include <string.h>
 #include "gkem.h"
-#include "../../kyber/avx2/kem.h"
-#include "../../kyber/avx2/fips202.h"
+#include "../../mlkem/avx2/kem.h"
+#include "../../mlkem/avx2/fips202.h"
 #include "params.h"
 
 /*************************************************

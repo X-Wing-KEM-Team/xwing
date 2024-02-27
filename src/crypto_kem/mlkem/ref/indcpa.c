@@ -190,7 +190,7 @@ static void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //
 * Name:        indcpa_keypair
 *
 * Description: Generates public and private key for the CPA-secure
-*              public-key encryption scheme underlying Kyber
+*              public-key encryption scheme underlying mlkem
 *
 * Arguments:   - unsigned char *pk: pointer to output public key (of length MLKEM_INDCPA_PUBLICKEYBYTES bytes)
 *              - unsigned char *sk: pointer to output private key (of length MLKEM_INDCPA_SECRETKEYBYTES bytes)
@@ -239,7 +239,7 @@ void indcpa_keypair(unsigned char *pk,
 * Name:        indcpa_enc
 *
 * Description: Encryption function of the CPA-secure
-*              public-key encryption scheme underlying Kyber.
+*              public-key encryption scheme underlying mlkem.
 *
 * Arguments:   - unsigned char *c:          pointer to output ciphertext (of length MLKEM_INDCPA_BYTES bytes)
 *              - const unsigned char *m:    pointer to input message (of length MLKEM_INDCPA_MSGBYTES bytes)
@@ -292,7 +292,7 @@ void indcpa_enc(unsigned char *c,
 * Name:        indcpa_dec
 *
 * Description: Decryption function of the CPA-secure
-*              public-key encryption scheme underlying Kyber.
+*              public-key encryption scheme underlying mlkem.
 *
 * Arguments:   - unsigned char *m:        pointer to output decrypted message (of length MLKEM_INDCPA_MSGBYTES)
 *              - const unsigned char *c:  pointer to input ciphertext (of length MLKEM_INDCPA_BYTES)

@@ -4,5 +4,5 @@ This reuses code from some C files and headers, and adapted Makefiles from [http
 
 For benchmarking purposes, DHKEM from the [HPKE RFC](https://www.rfc-editor.org/rfc/rfc9180.html) and the generic combiner proposed by [Giacon, Heuer and Poettering](https://eprint.iacr.org/2018/024.pdf).
 
-lib25519 is a requirement and must either be installed system wide or Nix can be used.
+lib25519 is a requirement and must either be installed system wide or Nix can be used (for GHPC, libsodium is also a dependency).
 
