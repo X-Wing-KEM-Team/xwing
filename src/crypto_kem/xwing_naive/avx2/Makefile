@@ -10,15 +10,15 @@ default: test
 
 test: test/test_xkem_functionality test/test_speed
 
-HEADERS = xkem.h  ../../kyber/avx2/params.h ../../kyber/avx2/align.h ../../kyber/avx2/kem.h ../../kyber/avx2/indcpa.h ../../kyber/avx2/polyvec.h ../../kyber/avx2/poly.h ../../kyber/avx2/reduce.h fq.inc shuffle.inc ../../kyber/avx2/ntt.h ../../kyber/avx2/consts.h ../../kyber/avx2/rejsample.h ../../kyber/avx2/cbd.h ../../kyber/avx2/verify.h ../../kyber/avx2/symmetric.h ../../kyber/avx2/randombytes.h ../../kyber/avx2/fips202.h ../../kyber/avx2/fips202x4.h test/cpucycles.h test/speed_print.h
+HEADERS = xkem.h  ../../mlkem/avx2/params.h ../../mlkem/avx2/align.h ../../mlkem/avx2/kem.h ../../mlkem/avx2/indcpa.h ../../mlkem/avx2/polyvec.h ../../mlkem/avx2/poly.h ../../mlkem/avx2/reduce.h fq.inc shuffle.inc ../../mlkem/avx2/ntt.h ../../mlkem/avx2/consts.h ../../mlkem/avx2/rejsample.h ../../mlkem/avx2/cbd.h ../../mlkem/avx2/verify.h ../../mlkem/avx2/symmetric.h ../../mlkem/avx2/randombytes.h ../../mlkem/avx2/fips202.h ../../mlkem/avx2/fips202x4.h test/cpucycles.h test/speed_print.h
 
-SOURCES =  xkem.c ../../kyber/avx2/kem.c ../../kyber/avx2/indcpa.c ../../kyber/avx2/polyvec.c ../../kyber/avx2/poly.c fq.S shuffle.S ntt.S invntt.S basemul.S ../../kyber/avx2/consts.c ../../kyber/avx2/rejsample.c ../../kyber/avx2/cbd.c ../../kyber/avx2/verify.c ../../kyber/avx2/fips202.c ../../kyber/avx2/fips202x4.c ../../kyber/avx2/symmetric-shake.c ../../kyber/avx2/keccak4x/KeccakP-1600-times4-SIMD256.o test/cpucycles.c test/speed_print.c
+SOURCES =  xkem.c ../../mlkem/avx2/kem.c ../../mlkem/avx2/indcpa.c ../../mlkem/avx2/polyvec.c ../../mlkem/avx2/poly.c fq.S shuffle.S ntt.S invntt.S basemul.S ../../mlkem/avx2/consts.c ../../mlkem/avx2/rejsample.c ../../mlkem/avx2/cbd.c ../../mlkem/avx2/verify.c ../../mlkem/avx2/fips202.c ../../mlkem/avx2/fips202x4.c ../../mlkem/avx2/symmetric-shake.c ../../mlkem/avx2/keccak4x/KeccakP-1600-times4-SIMD256.o test/cpucycles.c test/speed_print.c
 
 test/test_xkem_functionality: $(SOURCES) $(HEADERS) test/test_xkem_functionality.c
-	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCES) ../../kyber/avx2/randombytes.c test/test_xkem_functionality.c -o $@
+	$(CC) $(CFLAGS) -Dmlkem_K=3 $(SOURCES) ../../mlkem/avx2/randombytes.c test/test_xkem_functionality.c -o $@
 
 test/test_speed: $(SOURCES) $(HEADERS) test/test_speed.c
-	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCES) ../../kyber/avx2/randombytes.c test/test_speed.c -o $@
+	$(CC) $(CFLAGS) -Dmlkem_K=3 $(SOURCES) ../../mlkem/avx2/randombytes.c test/test_speed.c -o $@
 
 .PHONY: clean
 

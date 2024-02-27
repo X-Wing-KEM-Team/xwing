@@ -1,8 +1,8 @@
 *.so
 *.o
-test/test_kyber1024
-test/test_kyber512
-test/test_kyber768
+test/test_mlkem1024
+test/test_mlkem512
+test/test_mlkem768
 test/test_speed1024
 test/test_speed512
 test/test_speed768

@@ -5,7 +5,7 @@
 /*************************************************
 * Name:        mlkem_shake128_absorb
 *
-* Description: Absorb step of the SHAKE128 specialized for the Kyber context.
+* Description: Absorb step of the SHAKE128 specialized for the mlkem context.
 *
 * Arguments:   - uint64_t *s:                     pointer to (uninitialized) output Keccak state
 *              - const unsigned char *input:      pointer to MLKEM_SYMBYTES input to be absorbed into s
