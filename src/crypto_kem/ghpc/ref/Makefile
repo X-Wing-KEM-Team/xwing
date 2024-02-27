@@ -2,23 +2,29 @@
 
 -include ../../../../Makefile.conf
 
-CC     ?= /usr/bin/gcc
-CFLAGS := -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls -Wshadow -Wpointer-arith -mavx2 -mbmi2 -mpopcnt -march=native -mtune=native -O3 -fomit-frame-pointer -z noexecstack -l25519 -lsodium
+CC     ?= /usr/bin/cc
+CFLAGS := -Wall -Wextra -g -O3 -fomit-frame-pointer -l25519 -lsodium
 OS     := $(shell uname -s)
 
 default: test
 
 test: test/test_gkem_functionality test/test_speed
 
-HEADERS = gkem.h ../../mlkem/ref/symmetric.h ../../mlkem/ref/reduce.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/poly.h params.h ../../mlkem/ref/ntt.h ../../mlkem/ref/kem.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/fips202.h ../../mlkem/ref/cbd.h ../../mlkem/ref/params.h ../../dhkem/ref/kem.h ../../dhkem/ref/extractexpand.h ../../dhkem/ref/derivekeypair.h ../../dhkem/ref/params.h test/cpucycles.h test/speed_print.h
+MLKEMHEADERS = ../../mlkem/ref/cbd.h ../../mlkem/ref/fips202.h ../../mlkem/ref/indcpa.h ../../mlkem/ref/kem.h ../../mlkem/ref/ntt.h ../../mlkem/ref/params.h ../../mlkem/ref/poly.h ../../mlkem/ref/polyvec.h ../../mlkem/ref/reduce.h ../../mlkem/ref/symmetric.h
+DHKEMHEADERS = ../../dhkem/ref/params.h ../../dhkem/ref/kem.h ../../dhkem/ref/derivekeypair.h ../../dhkem/ref/extractexpand.h
+HEADERS = $(MLKEMHEADERS) $(DHKEMHEADERS) gkem.h params.h
+TESTHEADERS = $(HEADERS) test/cpucycles.h test/speed_print.h
 
-SOURCES =  gkem.c ../../mlkem/ref/symmetric-fips202.c ../../mlkem/ref/reduce.c ../../mlkem/ref/polyvec.c ../../mlkem/ref/poly.c ../../mlkem/ref/ntt.c ../../mlkem/ref/kem.c ../../mlkem/ref/indcpa.c ../../mlkem/ref/fips202.c ../../mlkem/ref/cbd.c  ../../dhkem/ref/kem.c ../../dhkem/ref/extractexpand.c ../../dhkem/ref/derivekeypair.c test/cpucycles.c test/speed_print.c
+MLKEMSOURCES = ../../mlkem/ref/cbd.c ../../mlkem/ref/fips202.c ../../mlkem/ref/indcpa.c ../../mlkem/ref/kem.c ../../mlkem/ref/ntt.c ../../mlkem/ref/poly.c ../../mlkem/ref/polyvec.c ../../mlkem/ref/reduce.c ../../mlkem/ref/symmetric-fips202.c
+DHKEMSOURCES = ../../dhkem/ref/kem.c ../../dhkem/ref/derivekeypair.c ../../dhkem/ref/extractexpand.c
+SOURCES =  $(MLKEMSOURCES) $(DHKEMSOURCES) gkem.c
+TESTSOURCES = $(SOURCES) test/cpucycles.c test/speed_print.c 
 
-test/test_gkem_functionality: test/test_gkem_functionality.c $(HEADERS) $(SOURCES) $(INCS)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $<
+test/test_gkem_functionality: $(TESTSOURCES) $(TESTHEADERS) test/test_gkem_functionality.c
+	$(CC) $(CFLAGS) -Dmlkem_K=3 $(TESTSOURCES) test/test_gkem_functionality.c -o $@
 
-test/test_speed: test/test_speed.c $(HEADERS) $(SOURCES) $(INCS)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $<
+test/test_speed: $(TESTSOURCES) $(TESTHEADERS) test/test_speed.c
+	$(CC) $(CFLAGS) -Dmlkem_K=3 $(TESTSOURCES) test/test_speed.c -o $@
 
 .PHONY: clean
 
