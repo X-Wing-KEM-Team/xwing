@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "cpucycles.h"
 #include "speed_print.h"
-#include "../xkem.h"
+#include "../kem.h"
 #include "../params.h"
 
 #define NTESTS 1000
@@ -12,35 +12,35 @@ uint64_t t[NTESTS];
 int main(void) {
     size_t i;
 
-    uint8_t pk[XWING_PUBLICKEYBYTES];
-    uint8_t sk[XWING_SECRETKEYBYTES];
-    uint8_t pt[XWING_SSBYTES];
-    uint8_t ct[XWING_CIPHERTEXTBYTES];
-    uint8_t randomness0[XWING_SYMBYTES * 3];
-    uint8_t randomness1[XWING_SYMBYTES * 2];
+    uint8_t pk[DH_BYTES];
+    uint8_t sk[DH_BYTES];
+    uint8_t pt[DH_BYTES];
+    uint8_t ct[DH_BYTES];
+    uint8_t randomness0[DH_BYTES * 3];
+    uint8_t randomness1[DH_BYTES];
 
     FILE *urandom = fopen("/dev/urandom", "r");
-    fread(randomness0, 3 * XWING_SYMBYTES, 1, urandom);
-    fread(randomness1, 2 * XWING_SYMBYTES, 1, urandom);
+    fread(randomness0, DH_BYTES, 1, urandom);
+    fread(randomness1, DH_BYTES, 1, urandom);
     fclose(urandom);
 
     for(i = 0; i < NTESTS; ++i) {
         t[i] = cpucycles();
-        crypto_xkem_keypair(pk, sk, randomness0);
+        crypto_dkem_keypair(pk, sk, randomness0);
     }
-    print_results("xkem_keypair:", t, NTESTS);
+    print_results("dkem_keypair:", t, NTESTS);
 
 
     for(i = 0; i < NTESTS; ++i) {
         t[i] = cpucycles();
-        crypto_xkem_enc(ct, pt, pk, randomness1);
+        crypto_dkem_enc(ct, pt, pk, randomness1);
     }
-    print_results("xkem_enc:", t, NTESTS);
+    print_results("dkem_enc:", t, NTESTS);
 
 
     for(i = 0; i < NTESTS; ++i) {
         t[i] = cpucycles();
-        crypto_xkem_dec(pt, ct, sk);
+        crypto_dkem_dec(pt, ct, sk);
     }
-    print_results("xkem_dec:", t, NTESTS);
+    print_results("dkem_dec:", t, NTESTS);
 }
