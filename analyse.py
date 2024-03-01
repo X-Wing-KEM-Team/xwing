@@ -1,12 +1,10 @@
 import glob
-import statistics
 import json
 import platform
 import psutil
-import platform
-import subprocess
 import re
-
+import statistics
+import subprocess
 
 algorithms = {}
 
