@@ -1,5 +1,7 @@
 default: xwing ghpc xwing_naive
 
+all: xwing xwing_naive ghpc clean
+
 xwing:
 	cd src/crypto_kem/xwing/ref && $(MAKE) 
 	cd src/crypto_kem/xwing/avx2 && $(MAKE)
