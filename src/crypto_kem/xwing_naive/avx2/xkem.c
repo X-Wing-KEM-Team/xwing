@@ -1,13 +1,9 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <lib25519.h>
 #include <string.h>
 #include "xkem.h"
+#include "params.h"
 #include "../../mlkem/avx2/kem.h"
 #include "../../mlkem/avx2/fips202.h"
-#include "params.h"
 
 /*************************************************
  * Name:        crypto_xkem_keypair

@@ -1,5 +1,5 @@
-#ifndef PARAMS_X
-#define PARAMS_X
+#ifndef PARAMS_H
+#define PARAMS_H
 
 #define MLKEM_K 3
 #define MLKEM_N 256

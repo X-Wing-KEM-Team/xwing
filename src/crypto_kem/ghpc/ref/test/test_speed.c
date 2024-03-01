@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdio.h>
 #include "cpucycles.h"
 #include "speed_print.h"

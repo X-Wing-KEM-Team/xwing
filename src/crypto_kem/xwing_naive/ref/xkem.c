@@ -1,12 +1,11 @@
-#include <stdint.h>
-#include <stddef.h>
 #include <string.h>
-#include <stdlib.h>
 #include <lib25519.h>
 #include "xkem.h"
 #include "params.h"
 #include "../../mlkem/ref/symmetric.h"
 #include "../../mlkem/ref/kem.h"
+#include "../../mlkem/avx2/kem.h"
+
 /*************************************************
  * Name:        crypto_xkem_keypair
  *

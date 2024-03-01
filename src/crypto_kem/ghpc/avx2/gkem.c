@@ -1,12 +1,9 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <lib25519.h>
 #include <string.h>
 #include "gkem.h"
+#include "params.h"
 #include "../../mlkem/avx2/kem.h"
 #include "../../mlkem/avx2/fips202.h"
-#include "params.h"
+#include "../../dhkem/ref/kem.h"
 
 /*************************************************
  * Name:        crypto_gkem_keypair

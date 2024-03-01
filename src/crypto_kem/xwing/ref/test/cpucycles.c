@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include "cpucycles.h"
 
 uint64_t cpucycles_overhead(void) {

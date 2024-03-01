@@ -1,7 +1,3 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <lib25519.h>
 #include <string.h>
 #include "xkem.h"

@@ -1,5 +1,5 @@
-#ifndef PARAMS_D
-#define PARAMS_D
+#ifndef PARAMS_H
+#define PARAMS_H
 
 #define DH_BYTES 32
 #define LABELED_IKM_DERIVEKEYPAIR_BYTES 51

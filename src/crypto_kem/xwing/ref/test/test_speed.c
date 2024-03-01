@@ -3,7 +3,6 @@
 #include "cpucycles.h"
 #include "speed_print.h"
 #include "../xkem.h"
-#include "../params.h"
 
 #define NTESTS 1000
 

@@ -1,7 +1,4 @@
-#include <stdint.h>
-#include <stddef.h>
 #include <string.h>
-#include <stdlib.h>
 #include <lib25519.h>
 #include "xkem.h"
 #include "params.h"

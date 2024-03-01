@@ -1,5 +1,5 @@
-#ifndef API_HA
-#define API_HA
+#ifndef API_H
+#define API_H
 
 #include <stdint.h>
 

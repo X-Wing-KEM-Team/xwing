@@ -1,5 +1,5 @@
-#ifndef CRYPTO_KEM_H
-#define CRYPTO_KEM_H
+#ifndef KEM_H
+#define KEM_H
 
 #include <stdint.h>
 

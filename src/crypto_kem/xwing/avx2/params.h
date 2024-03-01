@@ -1,5 +1,5 @@
-#ifndef PARAMS_HA
-#define PARAMS_HA
+#ifndef PARAMS_H
+#define PARAMS_H
 
 #define xwing_NAMESPACE(s) xwing_avx2_##s
 
