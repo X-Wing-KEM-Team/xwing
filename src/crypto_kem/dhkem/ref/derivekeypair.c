@@ -6,6 +6,8 @@
 #include "extractexpand.h"
 #include "params.h"
 
+void deriveKeyPair(unsigned char *sk, unsigned char *pk, const unsigned char *ikm);
+
 void deriveKeyPair(unsigned char *sk, unsigned char *pk, const unsigned char *ikm)
 {
     unsigned char dkpPrk[DH_BYTES];

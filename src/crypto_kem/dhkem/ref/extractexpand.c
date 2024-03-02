@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include "params.h"
 
+void extractAndExpand(unsigned char *sharedSecret, unsigned char *dh, unsigned char *kemContext);
+
 void extractAndExpand(unsigned char *sharedSecret, unsigned char *dh, unsigned char *kemContext)
 {
     unsigned char eaePrk[DH_BYTES];
