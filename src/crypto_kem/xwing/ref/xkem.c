@@ -22,7 +22,7 @@ int crypto_xkem_keypair_derand(unsigned char *pk,
                                 const unsigned char *randomness)
 {
   crypto_kem_keypair(pk, sk, randomness);
-  pk += MLKEM_PUBLICKEYBYTES;xkem.c
+  pk += MLKEM_PUBLICKEYBYTES;
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
   lib25519_nG_montgomery25519(pk, randomness);
