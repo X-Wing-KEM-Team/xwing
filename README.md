@@ -1,5 +1,7 @@
 # X-Wing: The Hybrid KEM You’ve Been Looking For
 
+[![Coverage Status](https://coveralls.io/repos/github/JoaoDiogoDuarte/xwing/badge.svg?branch=main)](https://coveralls.io/github/JoaoDiogoDuarte/xwing?branch=main)
+
 Optimised and reference C implementation of the X-Wing hybrid KEM as defined in [draft-connolly-cfrg-xwing-kem](https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/) and analysed in [https://eprint.iacr.org/2024/039](https://eprint.iacr.org/2024/039) by Barbosa et al.
 
 Both implementations conform to the [libsodium API format](https://doc.libsodium.org/). 
