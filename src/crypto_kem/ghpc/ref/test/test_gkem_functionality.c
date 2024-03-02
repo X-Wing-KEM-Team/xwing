@@ -40,7 +40,7 @@ int main(void)
 
   if (sodium_init() < 0) {
         return 1;
-    }
+  }
   testFunctionality();
 
   return 0;
