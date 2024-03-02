@@ -2,8 +2,9 @@
 #include <string.h>
 #include "xkem.h"
 #include "params.h"
-#include "../../mlkem/avx2/randombytes.h"
+#include "../../mlkem/avx2/params.h"
 #include "../../mlkem/avx2/kem.h"
+#include "../../mlkem/avx2/randombytes.h"
 #include "../../mlkem/avx2/fips202.h"
 
 /*************************************************

@@ -1,9 +1,9 @@
 #include <string.h>
 #include <lib25519.h>
+#include "../../mlkem/ref/kem.h"
 #include "xkem.h"
 #include "params.h"
 #include "../../mlkem/ref/symmetric.h"
-#include "../../mlkem/ref/kem.h"
 #include "../../mlkem/ref/randombytes.h"
 
 /*************************************************
@@ -22,7 +22,7 @@ int crypto_xkem_keypair_derand(unsigned char *pk,
                                 const unsigned char *randomness)
 {
   crypto_kem_keypair(pk, sk, randomness);
-  pk += MLKEM_PUBLICKEYBYTES;
+  pk += MLKEM_PUBLICKEYBYTES;xkem.c
   sk += MLKEM_SECRETKEYBYTES;
   randomness += 2 * XWING_SYMBYTES;
   lib25519_nG_montgomery25519(pk, randomness);

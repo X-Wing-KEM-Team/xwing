@@ -1,5 +1,5 @@
-#ifndef KEM_H
-#define KEM_H
+#ifndef KEM_HR
+#define KEM_HR
 
 #include <stdint.h>
 #include "params.h"
