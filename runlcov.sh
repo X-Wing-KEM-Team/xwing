@@ -9,6 +9,6 @@ lcov -z -d .
 rm test/test_xkem_functionality
 
 lcov -r ../../../../xwing.lcov -o ../../../../xwing.lcov \
-    '*/test/test_xkem_functionality.c'
+    '*/test/*'
 
 exit 0
