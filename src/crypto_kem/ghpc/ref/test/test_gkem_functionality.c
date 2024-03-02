@@ -37,8 +37,10 @@ static int testFunctionality()
 
 int main(void)
 {
-  sodium_init();
-  int test0;
+
+  if (sodium_init() < 0) {
+        return 1;
+    }
   testFunctionality();
 
   return 0;

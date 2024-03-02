@@ -63,4 +63,6 @@ test_speed
 results_*
 .gdb_history
 test_speed_results.json
-
+test_xkem_functionality*.gcno
+*.lcov
+vgcore*
