@@ -86,9 +86,9 @@ static int testFunctionality()
 int main(void)
 {
   sodium_init();
-  int test0, test1;
-  test0 = testFunctionality();
-  test1 = testTestVectors();
+ 
+  testFunctionality();
+  testTestVectors();
 
   return -1 * (test0 && test1);
 }

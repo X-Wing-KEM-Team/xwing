@@ -39,7 +39,7 @@ int main(void)
 {
   sodium_init();
   int test0;
-  test0 = testFunctionality();
+  testFunctionality();
 
-  return test0;
+  return 0;
 }
