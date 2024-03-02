@@ -3,10 +3,9 @@
 #include <string.h>
 #include <assert.h>
 #include <sodium.h>
-
+#include "test_vectors.h"
 #include "../params.h"
 #include "../kem.h"
-#include "test_vectors.h"
 
 static int testTestVectors()
 {
@@ -23,7 +22,7 @@ static int testTestVectors()
   {
     if (ct0[i] != DHKEM_CIPHERTEXT_TEST_VECTOR[i])
     {
-      printf("error crypto_xkem_enc ct: %d ct0= %#04X - DHKEM_CIPHERTEXT_TEST_VECTOR = %#04X\n", i, ct0[i], DHKEM_CIPHERTEXT_TEST_VECTOR[i]);
+      printf("error crypto_dkem_enc ct: %d ct0= %#04X - DHKEM_CIPHERTEXT_TEST_VECTOR = %#04X\n", i, ct0[i], DHKEM_CIPHERTEXT_TEST_VECTOR[i]);
       error = 1;
     }
   }
@@ -32,7 +31,7 @@ static int testTestVectors()
   {
     if (shk0[i] != DHKEM_SHAREDKEY_TEST_VECTOR[i])
     {
-      printf("error crypto_xkem_enc shk: %d shk0= %#04X - DHKEM_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], DHKEM_SHAREDKEY_TEST_VECTOR[i]);
+      printf("error crypto_dkem_enc shk: %d shk0= %#04X - DHKEM_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], DHKEM_SHAREDKEY_TEST_VECTOR[i]);
       error = 1;
     }
   }
@@ -45,7 +44,7 @@ static int testTestVectors()
   {
     if (shk1[i] != DHKEM_SHAREDKEY_TEST_VECTOR[i])
     {
-      printf("error crypto_xkem_dec: %d shk1= %#04X - DHKEM_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], DHKEM_SHAREDKEY_TEST_VECTOR[i]);
+      printf("error crypto_dkem_dec: %d shk1= %#04X - DHKEM_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], DHKEM_SHAREDKEY_TEST_VECTOR[i]);
       error = 1;
     }
   }
@@ -85,10 +84,12 @@ static int testFunctionality()
 
 int main(void)
 {
-  sodium_init();
- 
+  if (sodium_init() < 0)
+  {
+    return 1;
+  }
+
   testFunctionality();
   testTestVectors();
-
   return 0;
 }

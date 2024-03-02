@@ -1,10 +1,70 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
+#include "../../../mlkem/avx2/randombytes.h"
 #include "../params.h"
 #include "../xkem.h"
 #include "test_vectors.h"
+
+
+static int testInvalidSecretKey(void)
+{
+  unsigned char pk[XWING_PUBLICKEYBYTES];
+  unsigned char sk[XWING_SECRETKEYBYTES];
+  unsigned char ct[XWING_CIPHERTEXTBYTES];
+  unsigned char key_a[XWING_SSBYTES];
+  unsigned char key_b[XWING_SSBYTES];
+
+  crypto_xkem_keypair(pk, sk);
+
+  crypto_xkem_enc(ct, key_b, pk);
+
+  randombytes(sk, XWING_SECRETKEYBYTES);
+
+  crypto_xkem_dec(key_a, ct, sk);
+
+  if(!memcmp(key_a, key_b, XWING_SSBYTES)) {
+    printf("ERROR invalid sk\n");
+    return 1;
+  }
+
+  return 0;
+}
+
+static int testInvalidCiphertext(void)
+{
+  unsigned char pk[XWING_PUBLICKEYBYTES];
+  unsigned char sk[XWING_SECRETKEYBYTES];
+  unsigned char ct[XWING_CIPHERTEXTBYTES];
+  unsigned char key_a[XWING_SSBYTES];
+  unsigned char key_b[XWING_SSBYTES];
+  unsigned char b;
+  size_t pos;
+
+  do {
+    randombytes(&b, sizeof(unsigned char));
+  } while(!b);
+  randombytes((unsigned char *)&pos, sizeof(unsigned char));
+
+  //Alice generates a public key
+  crypto_xkem_keypair(pk, sk);
+
+  //Bob derives a secret key and creates a response
+  crypto_xkem_enc(ct, key_b, pk);
+
+  //Change some byte in the ciphertext (i.e., encapsulated key)
+  ct[pos % XWING_CIPHERTEXTBYTES] ^= b;
+
+  //Alice uses Bobs response to get her shared key
+  crypto_xkem_dec(key_a, ct, sk);
+
+  if(!memcmp(key_a, key_b, XWING_SSBYTES)) {
+    printf("ERROR invalid ciphertext\n");
+    return 1;
+  }
+
+  return 0;
+}
 
 static int testTestVectors(void)
 {
@@ -108,9 +168,10 @@ static int testFunctionality(void)
 
 int main(void)
 {
- 
   testFunctionality();
   testTestVectors();
+  testInvalidSecretKey();
+  testInvalidCiphertext();
 
   return 0;
 }
