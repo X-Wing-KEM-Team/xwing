@@ -114,5 +114,15 @@ This will output a JSON named `test_speed_results.json` with the following forma
 
 ## Shared libraries
 
-TODO, planned for only the X-Wing implementation.
+The reference and optimised implementation of X-Wing can be compiled into shared libraries by running:
 
+```sh
+make shared
+```
+For example in the directory `ref/` of the reference implementation, this produces the libraries
+
+```sh
+libxwing_ref.so
+```
+
+All global symbols in the libraries lie in the namespaces `xwing_ref`. The corresponding API header file is `ref/api.h`, which contains prototypes for all API functions and preprocessor defines for the key and signature lengths.
