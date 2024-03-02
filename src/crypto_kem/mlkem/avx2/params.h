@@ -3,7 +3,6 @@
 
 // #define MLKEM_90S	/* Uncomment this if you want the 90S variant */
 
-#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM768_avx2_##s
 
 #define MLKEM_K 3
 #define MLKEM_N 256
