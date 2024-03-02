@@ -19,10 +19,10 @@ SOURCES =  $(MLKEMSOURCES) xkem.c
 TESTSOURCES = $(SOURCES) test/cpucycles.c test/speed_print.c 
 
 test/test_xkem_functionality: $(TESTSOURCES) $(TESTHEADERS) test/test_xkem_functionality.c
-	$(CC) $(CFLAGS) -Dmlkem_K=3 $(TESTSOURCES) test/test_xkem_functionality.c -o $@
+	$(CC) $(CFLAGS) -DMLKEM_K=3 $(TESTSOURCES) test/test_xkem_functionality.c -o $@
 
 test/test_speed: $(TESTSOURCES) $(TESTHEADERS) test/test_speed.c
-	$(CC) $(CFLAGS) -Dmlkem_K=3 $(TESTSOURCES) test/test_speed.c -o $@
+	$(CC) $(CFLAGS) -DMLKEM_K=3 $(TESTSOURCES) test/test_speed.c -o $@
 
 .PHONY: clean
 
