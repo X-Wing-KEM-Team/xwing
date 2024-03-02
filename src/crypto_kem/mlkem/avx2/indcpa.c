@@ -27,12 +27,12 @@
 *              polyvec *pk: pointer to the input public-key polyvec
 *              const uint8_t *seed: pointer to the input public seed
 **************************************************/
-static void pack_pk(uint8_t r[mlkem_INDCPA_PUBLICKEYBYTES],
+static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES],
                     polyvec *pk,
-                    const uint8_t seed[mlkem_SYMBYTES])
+                    const uint8_t seed[MLKEM_SYMBYTES])
 {
   polyvec_tobytes(r, pk);
-  memcpy(r+mlkem_POLYVECBYTES, seed, mlkem_SYMBYTES);
+  memcpy(r+MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
 }
 
 /*************************************************
@@ -46,11 +46,11 @@ static void pack_pk(uint8_t r[mlkem_INDCPA_PUBLICKEYBYTES],
 *              - const uint8_t *packedpk: pointer to input serialized public key
 **************************************************/
 static void unpack_pk(polyvec *pk,
-                      uint8_t seed[mlkem_SYMBYTES],
-                      const uint8_t packedpk[mlkem_INDCPA_PUBLICKEYBYTES])
+                      uint8_t seed[MLKEM_SYMBYTES],
+                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES])
 {
   polyvec_frombytes(pk, packedpk);
-  memcpy(seed, packedpk+mlkem_POLYVECBYTES, mlkem_SYMBYTES);
+  memcpy(seed, packedpk+MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 }
 
 /*************************************************
@@ -64,7 +64,7 @@ static void unpack_pk(polyvec *pk,
 * Arguments:   - uint8_t *r: pointer to output serialized secret key
 *              - polyvec *sk: pointer to input vector of polynomials (secret key)
 **************************************************/
-static void pack_sk(uint8_t r[mlkem_INDCPA_SECRETKEYBYTES], polyvec *sk)
+static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk)
 {
   polyvec_tobytes(r, sk);
 }
@@ -77,7 +77,7 @@ static void pack_sk(uint8_t r[mlkem_INDCPA_SECRETKEYBYTES], polyvec *sk)
 * Arguments:   - polyvec *sk: pointer to output vector of polynomials (secret key)
 *              - const uint8_t *packedsk: pointer to input serialized secret key
 **************************************************/
-static void unpack_sk(polyvec *sk, const uint8_t packedsk[mlkem_INDCPA_SECRETKEYBYTES])
+static void unpack_sk(polyvec *sk, const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES])
 {
   polyvec_frombytes(sk, packedsk);
 }
@@ -96,10 +96,10 @@ static void unpack_sk(polyvec *sk, const uint8_t packedsk[mlkem_INDCPA_SECRETKEY
 *              poly *pk: pointer to the input vector of polynomials b
 *              poly *v: pointer to the input polynomial v
 **************************************************/
-static void pack_ciphertext(uint8_t r[mlkem_INDCPA_BYTES], polyvec *b, poly *v)
+static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b, poly *v)
 {
   polyvec_compress(r, b);
-  poly_compress(r+mlkem_POLYVECCOMPRESSEDBYTES, v);
+  poly_compress(r+MLKEM_POLYVECCOMPRESSEDBYTES, v);
 }
 
 /*************************************************
@@ -112,10 +112,10 @@ static void pack_ciphertext(uint8_t r[mlkem_INDCPA_BYTES], polyvec *b, poly *v)
 *              - poly *v: pointer to the output polynomial v
 *              - const uint8_t *c: pointer to the input serialized ciphertext
 **************************************************/
-static void unpack_ciphertext(polyvec *b, poly *v, const uint8_t c[mlkem_INDCPA_BYTES])
+static void unpack_ciphertext(polyvec *b, poly *v, const uint8_t c[MLKEM_INDCPA_BYTES])
 {
   polyvec_decompress(b, c);
-  poly_decompress(v, c+mlkem_POLYVECCOMPRESSEDBYTES);
+  poly_decompress(v, c+MLKEM_POLYVECCOMPRESSEDBYTES);
 }
 
 /*************************************************
@@ -145,9 +145,9 @@ static unsigned int rej_uniform(int16_t *r,
     val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4)) & 0xFFF;
     pos += 3;
 
-    if(val0 < mlkem_Q)
+    if(val0 < MLKEM_Q)
       r[ctr++] = val0;
-    if(ctr < len && val1 < mlkem_Q)
+    if(ctr < len && val1 < MLKEM_Q)
       r[ctr++] = val1;
   }
 
@@ -169,7 +169,7 @@ static unsigned int rej_uniform(int16_t *r,
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed: boolean deciding whether A or A^T is generated
 **************************************************/
-#if mlkem_K == 2
+#if MLKEM_K == 2
 void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3;
@@ -212,13 +212,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
   ctr2 = rej_uniform_avx(a[1].vec[0].coeffs, buf[2].coeffs);
   ctr3 = rej_uniform_avx(a[1].vec[1].coeffs, buf[3].coeffs);
 
-  while(ctr0 < mlkem_N || ctr1 < mlkem_N || ctr2 < mlkem_N || ctr3 < mlkem_N) {
+  while(ctr0 < MLKEM_N || ctr1 < MLKEM_N || ctr2 < MLKEM_N || ctr3 < MLKEM_N) {
     shake128x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 1, &state);
 
-    ctr0 += rej_uniform(a[0].vec[0].coeffs + ctr0, mlkem_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
-    ctr1 += rej_uniform(a[0].vec[1].coeffs + ctr1, mlkem_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
-    ctr2 += rej_uniform(a[1].vec[0].coeffs + ctr2, mlkem_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
-    ctr3 += rej_uniform(a[1].vec[1].coeffs + ctr3, mlkem_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
+    ctr0 += rej_uniform(a[0].vec[0].coeffs + ctr0, MLKEM_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
+    ctr1 += rej_uniform(a[0].vec[1].coeffs + ctr1, MLKEM_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
+    ctr2 += rej_uniform(a[1].vec[0].coeffs + ctr2, MLKEM_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
+    ctr3 += rej_uniform(a[1].vec[1].coeffs + ctr3, MLKEM_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
   }
 
   poly_nttunpack(&a[0].vec[0]);
@@ -226,7 +226,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
   poly_nttunpack(&a[1].vec[0]);
   poly_nttunpack(&a[1].vec[1]);
 }
-#elif mlkem_K == 3
+#elif MLKEM_K == 3
 void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3;
@@ -270,13 +270,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
   ctr2 = rej_uniform_avx(a[0].vec[2].coeffs, buf[2].coeffs);
   ctr3 = rej_uniform_avx(a[1].vec[0].coeffs, buf[3].coeffs);
 
-  while(ctr0 < mlkem_N || ctr1 < mlkem_N || ctr2 < mlkem_N || ctr3 < mlkem_N) {
+  while(ctr0 < MLKEM_N || ctr1 < MLKEM_N || ctr2 < MLKEM_N || ctr3 < MLKEM_N) {
     shake128x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 1, &state);
 
-    ctr0 += rej_uniform(a[0].vec[0].coeffs + ctr0, mlkem_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
-    ctr1 += rej_uniform(a[0].vec[1].coeffs + ctr1, mlkem_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
-    ctr2 += rej_uniform(a[0].vec[2].coeffs + ctr2, mlkem_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
-    ctr3 += rej_uniform(a[1].vec[0].coeffs + ctr3, mlkem_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
+    ctr0 += rej_uniform(a[0].vec[0].coeffs + ctr0, MLKEM_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
+    ctr1 += rej_uniform(a[0].vec[1].coeffs + ctr1, MLKEM_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
+    ctr2 += rej_uniform(a[0].vec[2].coeffs + ctr2, MLKEM_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
+    ctr3 += rej_uniform(a[1].vec[0].coeffs + ctr3, MLKEM_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
   }
 
   poly_nttunpack(&a[0].vec[0]);
@@ -319,13 +319,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
   ctr2 = rej_uniform_avx(a[2].vec[0].coeffs, buf[2].coeffs);
   ctr3 = rej_uniform_avx(a[2].vec[1].coeffs, buf[3].coeffs);
 
-  while(ctr0 < mlkem_N || ctr1 < mlkem_N || ctr2 < mlkem_N || ctr3 < mlkem_N) {
+  while(ctr0 < MLKEM_N || ctr1 < MLKEM_N || ctr2 < MLKEM_N || ctr3 < MLKEM_N) {
     shake128x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 1, &state);
 
-    ctr0 += rej_uniform(a[1].vec[1].coeffs + ctr0, mlkem_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
-    ctr1 += rej_uniform(a[1].vec[2].coeffs + ctr1, mlkem_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
-    ctr2 += rej_uniform(a[2].vec[0].coeffs + ctr2, mlkem_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
-    ctr3 += rej_uniform(a[2].vec[1].coeffs + ctr3, mlkem_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
+    ctr0 += rej_uniform(a[1].vec[1].coeffs + ctr0, MLKEM_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
+    ctr1 += rej_uniform(a[1].vec[2].coeffs + ctr1, MLKEM_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
+    ctr2 += rej_uniform(a[2].vec[0].coeffs + ctr2, MLKEM_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
+    ctr3 += rej_uniform(a[2].vec[1].coeffs + ctr3, MLKEM_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
   }
 
   poly_nttunpack(&a[1].vec[1]);
@@ -340,14 +340,14 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
   shake128_absorb_once(&state1x, buf[0].coeffs, 34);
   shake128_squeezeblocks(buf[0].coeffs, REJ_UNIFORM_AVX_NBLOCKS, &state1x);
   ctr0 = rej_uniform_avx(a[2].vec[2].coeffs, buf[0].coeffs);
-  while(ctr0 < mlkem_N) {
+  while(ctr0 < MLKEM_N) {
     shake128_squeezeblocks(buf[0].coeffs, 1, &state1x);
-    ctr0 += rej_uniform(a[2].vec[2].coeffs + ctr0, mlkem_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
+    ctr0 += rej_uniform(a[2].vec[2].coeffs + ctr0, MLKEM_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
   }
 
   poly_nttunpack(&a[2].vec[2]);
 }
-#elif mlkem_K == 4
+#elif MLKEM_K == 4
 void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
   unsigned int i, ctr0, ctr1, ctr2, ctr3;
@@ -391,13 +391,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
     ctr2 = rej_uniform_avx(a[i].vec[2].coeffs, buf[2].coeffs);
     ctr3 = rej_uniform_avx(a[i].vec[3].coeffs, buf[3].coeffs);
 
-    while(ctr0 < mlkem_N || ctr1 < mlkem_N || ctr2 < mlkem_N || ctr3 < mlkem_N) {
+    while(ctr0 < MLKEM_N || ctr1 < MLKEM_N || ctr2 < MLKEM_N || ctr3 < MLKEM_N) {
       shake128x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 1, &state);
 
-      ctr0 += rej_uniform(a[i].vec[0].coeffs + ctr0, mlkem_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
-      ctr1 += rej_uniform(a[i].vec[1].coeffs + ctr1, mlkem_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
-      ctr2 += rej_uniform(a[i].vec[2].coeffs + ctr2, mlkem_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
-      ctr3 += rej_uniform(a[i].vec[3].coeffs + ctr3, mlkem_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
+      ctr0 += rej_uniform(a[i].vec[0].coeffs + ctr0, MLKEM_N - ctr0, buf[0].coeffs, SHAKE128_RATE);
+      ctr1 += rej_uniform(a[i].vec[1].coeffs + ctr1, MLKEM_N - ctr1, buf[1].coeffs, SHAKE128_RATE);
+      ctr2 += rej_uniform(a[i].vec[2].coeffs + ctr2, MLKEM_N - ctr2, buf[2].coeffs, SHAKE128_RATE);
+      ctr3 += rej_uniform(a[i].vec[3].coeffs + ctr3, MLKEM_N - ctr3, buf[3].coeffs, SHAKE128_RATE);
     }
 
     poly_nttunpack(&a[i].vec[0]);
@@ -415,32 +415,32 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 *              public-key encryption scheme underlying mlkem
 *
 * Arguments:   - uint8_t *pk: pointer to output public key
-*                             (of length mlkem_INDCPA_PUBLICKEYBYTES bytes)
+*                             (of length MLKEM_INDCPA_PUBLICKEYBYTES bytes)
 *              - uint8_t *sk: pointer to output private key
-*                             (of length mlkem_INDCPA_SECRETKEYBYTES bytes)
+*                             (of length MLKEM_INDCPA_SECRETKEYBYTES bytes)
 *              - const uint8_t *coins: pointer to input randomness
-*                             (of length mlkem_SYMBYTES bytes)
+*                             (of length MLKEM_SYMBYTES bytes)
 **************************************************/
-void indcpa_keypair_derand(uint8_t pk[mlkem_INDCPA_PUBLICKEYBYTES],
-                           uint8_t sk[mlkem_INDCPA_SECRETKEYBYTES],
-                           const uint8_t coins[mlkem_SYMBYTES])
+void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
+                           uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
+                           const uint8_t coins[MLKEM_SYMBYTES])
 {
   unsigned int i;
-  uint8_t buf[2*mlkem_SYMBYTES];
+  uint8_t buf[2*MLKEM_SYMBYTES];
   const uint8_t *publicseed = buf;
-  const uint8_t *noiseseed = buf + mlkem_SYMBYTES;
-  polyvec a[mlkem_K], e, pkpv, skpv;
+  const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
+  polyvec a[MLKEM_K], e, pkpv, skpv;
 
-  hash_g(buf, coins, mlkem_SYMBYTES);
+  hash_g(buf, coins, MLKEM_SYMBYTES);
 
   gen_a(a, publicseed);
 
-#if mlkem_K == 2
+#if MLKEM_K == 2
   poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, e.vec+0, e.vec+1, noiseseed, 0, 1, 2, 3);
-#elif mlkem_K == 3
+#elif MLKEM_K == 3
   poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, e.vec+0, noiseseed, 0, 1, 2, 3);
   poly_getnoise_eta1_4x(e.vec+1, e.vec+2, pkpv.vec+0, pkpv.vec+1, noiseseed, 4, 5, 6, 7);
-#elif mlkem_K == 4
+#elif MLKEM_K == 4
   poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, skpv.vec+3, noiseseed,  0, 1, 2, 3);
   poly_getnoise_eta1_4x(e.vec+0, e.vec+1, e.vec+2, e.vec+3, noiseseed, 4, 5, 6, 7);
 #endif
@@ -450,7 +450,7 @@ void indcpa_keypair_derand(uint8_t pk[mlkem_INDCPA_PUBLICKEYBYTES],
   polyvec_ntt(&e);
 
   // matrix-vector multiplication
-  for(i=0;i<mlkem_K;i++) {
+  for(i=0;i<MLKEM_K;i++) {
     polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
     poly_tomont(&pkpv.vec[i]);
   }
@@ -469,36 +469,36 @@ void indcpa_keypair_derand(uint8_t pk[mlkem_INDCPA_PUBLICKEYBYTES],
 *              public-key encryption scheme underlying mlkem.
 *
 * Arguments:   - uint8_t *c: pointer to output ciphertext
-*                            (of length mlkem_INDCPA_BYTES bytes)
+*                            (of length MLKEM_INDCPA_BYTES bytes)
 *              - const uint8_t *m: pointer to input message
-*                                  (of length mlkem_INDCPA_MSGBYTES bytes)
+*                                  (of length MLKEM_INDCPA_MSGBYTES bytes)
 *              - const uint8_t *pk: pointer to input public key
-*                                   (of length mlkem_INDCPA_PUBLICKEYBYTES)
+*                                   (of length MLKEM_INDCPA_PUBLICKEYBYTES)
 *              - const uint8_t *coins: pointer to input random coins used as seed
-*                                      (of length mlkem_SYMBYTES) to deterministically
+*                                      (of length MLKEM_SYMBYTES) to deterministically
 *                                      generate all randomness
 **************************************************/
-void indcpa_enc(uint8_t c[mlkem_INDCPA_BYTES],
-                const uint8_t m[mlkem_INDCPA_MSGBYTES],
-                const uint8_t pk[mlkem_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[mlkem_SYMBYTES])
+void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
+                const uint8_t m[MLKEM_INDCPA_MSGBYTES],
+                const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
+                const uint8_t coins[MLKEM_SYMBYTES])
 {
   unsigned int i;
-  uint8_t seed[mlkem_SYMBYTES];
-  polyvec sp, pkpv, ep, at[mlkem_K], b;
+  uint8_t seed[MLKEM_SYMBYTES];
+  polyvec sp, pkpv, ep, at[MLKEM_K], b;
   poly v, k, epp;
 
   unpack_pk(&pkpv, seed, pk);
   poly_frommsg(&k, m);
   gen_at(at, seed);
 
-#if mlkem_K == 2
+#if MLKEM_K == 2
   poly_getnoise_eta1122_4x(sp.vec+0, sp.vec+1, ep.vec+0, ep.vec+1, coins, 0, 1, 2, 3);
   poly_getnoise_eta2(&epp, coins, 4);
-#elif mlkem_K == 3
+#elif MLKEM_K == 3
   poly_getnoise_eta1_4x(sp.vec+0, sp.vec+1, sp.vec+2, ep.vec+0, coins, 0, 1, 2 ,3);
   poly_getnoise_eta1_4x(ep.vec+1, ep.vec+2, &epp, b.vec+0, coins,  4, 5, 6, 7);
-#elif mlkem_K == 4
+#elif MLKEM_K == 4
   poly_getnoise_eta1_4x(sp.vec+0, sp.vec+1, sp.vec+2, sp.vec+3, coins, 0, 1, 2, 3);
   poly_getnoise_eta1_4x(ep.vec+0, ep.vec+1, ep.vec+2, ep.vec+3, coins, 4, 5, 6, 7);
   poly_getnoise_eta2(&epp, coins, 8);
@@ -507,7 +507,7 @@ void indcpa_enc(uint8_t c[mlkem_INDCPA_BYTES],
   polyvec_ntt(&sp);
 
   // matrix-vector multiplication
-  for(i=0;i<mlkem_K;i++)
+  for(i=0;i<MLKEM_K;i++)
     polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
   polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
 
@@ -530,15 +530,15 @@ void indcpa_enc(uint8_t c[mlkem_INDCPA_BYTES],
 *              public-key encryption scheme underlying mlkem.
 *
 * Arguments:   - uint8_t *m: pointer to output decrypted message
-*                            (of length mlkem_INDCPA_MSGBYTES)
+*                            (of length MLKEM_INDCPA_MSGBYTES)
 *              - const uint8_t *c: pointer to input ciphertext
-*                                  (of length mlkem_INDCPA_BYTES)
+*                                  (of length MLKEM_INDCPA_BYTES)
 *              - const uint8_t *sk: pointer to input secret key
-*                                   (of length mlkem_INDCPA_SECRETKEYBYTES)
+*                                   (of length MLKEM_INDCPA_SECRETKEYBYTES)
 **************************************************/
-void indcpa_dec(uint8_t m[mlkem_INDCPA_MSGBYTES],
-                const uint8_t c[mlkem_INDCPA_BYTES],
-                const uint8_t sk[mlkem_INDCPA_SECRETKEYBYTES])
+void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
+                const uint8_t c[MLKEM_INDCPA_BYTES],
+                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])
 {
   polyvec b, skpv;
   poly v, mp;

@@ -10,17 +10,17 @@
 
 typedef keccak_state xof_state;
 
-#define mlkem_shake128_absorb mlkem_NAMESPACE(mlkem_shake128_absorb)
+#define mlkem_shake128_absorb MLKEM_NAMESPACE(mlkem_shake128_absorb)
 void mlkem_shake128_absorb(keccak_state *s,
-                           const uint8_t seed[mlkem_SYMBYTES],
+                           const uint8_t seed[MLKEM_SYMBYTES],
                            uint8_t x,
                            uint8_t y);
 
-#define mlkem_shake256_prf mlkem_NAMESPACE(mlkem_shake256_prf)
-void mlkem_shake256_prf(uint8_t *out, size_t outlen, const uint8_t key[mlkem_SYMBYTES], uint8_t nonce);
+#define mlkem_shake256_prf MLKEM_NAMESPACE(mlkem_shake256_prf)
+void mlkem_shake256_prf(uint8_t *out, size_t outlen, const uint8_t key[MLKEM_SYMBYTES], uint8_t nonce);
 
-#define mlkem_shake256_rkprf mlkem_NAMESPACE(mlkem_shake256_rkprf)
-void mlkem_shake256_rkprf(uint8_t out[mlkem_SSBYTES], const uint8_t key[mlkem_SYMBYTES], const uint8_t input[mlkem_CIPHERTEXTBYTES]);
+#define mlkem_shake256_rkprf MLKEM_NAMESPACE(mlkem_shake256_rkprf)
+void mlkem_shake256_rkprf(uint8_t out[MLKEM_SSBYTES], const uint8_t key[MLKEM_SYMBYTES], const uint8_t input[MLKEM_CIPHERTEXTBYTES]);
 
 #define XOF_BLOCKBYTES SHAKE128_RATE
 

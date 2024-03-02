@@ -1,68 +1,68 @@
-#ifndef PARAMS_H
-#define PARAMS_H
+#ifndef PARAMS_HM
+#define PARAMS_HM
 
-#ifndef mlkem_K
-#define mlkem_K 3	/* Change this for different security strengths */
+#ifndef MLKEM_K
+#define MLKEM_K 3	/* Change this for different security strengths */
 #endif
 
-//#define mlkem_90S	/* Uncomment this if you want the 90S variant */
+//#define MLKEM_90S	/* Uncomment this if you want the 90S variant */
 
 /* Don't change parameters below this line */
-#if   (mlkem_K == 2)
-#ifdef mlkem_90S
-#define mlkem_NAMESPACE(s) pqcrystals_mlkem512_90s_avx2_##s
+#if   (MLKEM_K == 2)
+#ifdef MLKEM_90S
+#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM512_90s_avx2_##s
 #else
-#define mlkem_NAMESPACE(s) pqcrystals_mlkem512_avx2_##s
+#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM512_avx2_##s
 #endif
-#elif (mlkem_K == 3)
-#ifdef mlkem_90S
-#define mlkem_NAMESPACE(s) pqcrystals_mlkem768_90s_avx2_##s
+#elif (MLKEM_K == 3)
+#ifdef MLKEM_90S
+#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM768_90s_avx2_##s
 #else
-#define mlkem_NAMESPACE(s) pqcrystals_mlkem768_avx2_##s
+#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM768_avx2_##s
 #endif
-#elif (mlkem_K == 4)
-#ifdef mlkem_90S
-#define mlkem_NAMESPACE(s) pqcrystals_mlkem1024_90s_avx2_##s
+#elif (MLKEM_K == 4)
+#ifdef MLKEM_90S
+#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM1024_90s_avx2_##s
 #else
-#define mlkem_NAMESPACE(s) pqcrystals_mlkem1024_avx2_##s
+#define MLKEM_NAMESPACE(s) pqcrystals_MLKEM1024_avx2_##s
 #endif
 #else
-#error "mlkem_K must be in {2,3,4}"
+#error "MLKEM_K must be in {2,3,4}"
 #endif
 
-#define mlkem_N 256
-#define mlkem_Q 3329
+#define MLKEM_N 256
+#define MLKEM_Q 3329
 
-#define mlkem_SYMBYTES 32   /* size in bytes of hashes, and seeds */
-#define mlkem_SSBYTES  32   /* size in bytes of shared key */
+#define MLKEM_SYMBYTES 32   /* size in bytes of hashes, and seeds */
+#define MLKEM_SSBYTES  32   /* size in bytes of shared key */
 
-#define mlkem_POLYBYTES		384
-#define mlkem_POLYVECBYTES	(mlkem_K * mlkem_POLYBYTES)
+#define MLKEM_POLYBYTES		384
+#define MLKEM_POLYVECBYTES	(MLKEM_K * MLKEM_POLYBYTES)
 
-#if mlkem_K == 2
-#define mlkem_ETA1 3
-#define mlkem_POLYCOMPRESSEDBYTES    128
-#define mlkem_POLYVECCOMPRESSEDBYTES (mlkem_K * 320)
-#elif mlkem_K == 3
-#define mlkem_ETA1 2
-#define mlkem_POLYCOMPRESSEDBYTES    128
-#define mlkem_POLYVECCOMPRESSEDBYTES (mlkem_K * 320)
-#elif mlkem_K == 4
-#define mlkem_ETA1 2
-#define mlkem_POLYCOMPRESSEDBYTES    160
-#define mlkem_POLYVECCOMPRESSEDBYTES (mlkem_K * 352)
+#if MLKEM_K == 2
+#define MLKEM_ETA1 3
+#define MLKEM_POLYCOMPRESSEDBYTES    128
+#define MLKEM_POLYVECCOMPRESSEDBYTES (MLKEM_K * 320)
+#elif MLKEM_K == 3
+#define MLKEM_ETA1 2
+#define MLKEM_POLYCOMPRESSEDBYTES    128
+#define MLKEM_POLYVECCOMPRESSEDBYTES (MLKEM_K * 320)
+#elif MLKEM_K == 4
+#define MLKEM_ETA1 2
+#define MLKEM_POLYCOMPRESSEDBYTES    160
+#define MLKEM_POLYVECCOMPRESSEDBYTES (MLKEM_K * 352)
 #endif
 
-#define mlkem_ETA2 2
+#define MLKEM_ETA2 2
 
-#define mlkem_INDCPA_MSGBYTES       (mlkem_SYMBYTES)
-#define mlkem_INDCPA_PUBLICKEYBYTES (mlkem_POLYVECBYTES + mlkem_SYMBYTES)
-#define mlkem_INDCPA_SECRETKEYBYTES (mlkem_POLYVECBYTES)
-#define mlkem_INDCPA_BYTES          (mlkem_POLYVECCOMPRESSEDBYTES + mlkem_POLYCOMPRESSEDBYTES)
+#define MLKEM_INDCPA_MSGBYTES       (MLKEM_SYMBYTES)
+#define MLKEM_INDCPA_PUBLICKEYBYTES (MLKEM_POLYVECBYTES + MLKEM_SYMBYTES)
+#define MLKEM_INDCPA_SECRETKEYBYTES (MLKEM_POLYVECBYTES)
+#define MLKEM_INDCPA_BYTES          (MLKEM_POLYVECCOMPRESSEDBYTES + MLKEM_POLYCOMPRESSEDBYTES)
 
-#define mlkem_PUBLICKEYBYTES  (mlkem_INDCPA_PUBLICKEYBYTES)
+#define MLKEM_PUBLICKEYBYTES  (MLKEM_INDCPA_PUBLICKEYBYTES)
 /* 32 bytes of additional space to save H(pk) */
-#define mlkem_SECRETKEYBYTES  (mlkem_INDCPA_SECRETKEYBYTES + mlkem_INDCPA_PUBLICKEYBYTES + 2*mlkem_SYMBYTES)
-#define mlkem_CIPHERTEXTBYTES (mlkem_INDCPA_BYTES)
+#define MLKEM_SECRETKEYBYTES  (MLKEM_INDCPA_SECRETKEYBYTES + MLKEM_INDCPA_PUBLICKEYBYTES + 2*MLKEM_SYMBYTES)
+#define MLKEM_CIPHERTEXTBYTES (MLKEM_INDCPA_BYTES)
 
 #endif

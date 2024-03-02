@@ -24,14 +24,14 @@ void init_ntt() {
 
   tmp[0] = MONT;
   for(i=1;i<128;i++)
-    tmp[i] = fqmul(tmp[i-1],MONT*mlkem_ROOT_OF_UNITY % mlkem_Q);
+    tmp[i] = fqmul(tmp[i-1],MONT*mlkem_ROOT_OF_UNITY % MLKEM_Q);
 
   for(i=0;i<128;i++) {
     zetas[i] = tmp[tree[i]];
-    if(zetas[i] > mlkem_Q/2)
-      zetas[i] -= mlkem_Q;
-    if(zetas[i] < -mlkem_Q/2)
-      zetas[i] += mlkem_Q;
+    if(zetas[i] > MLKEM_Q/2)
+      zetas[i] -= MLKEM_Q;
+    if(zetas[i] < -MLKEM_Q/2)
+      zetas[i] += MLKEM_Q;
   }
 }
 */

@@ -27,16 +27,16 @@
 #if defined(__WIN32__) || defined(__APPLE__)
 #define decorate(s) _##s
 #define cdecl2(s) decorate(s)
-#define cdecl(s) cdecl2(mlkem_NAMESPACE(##s))
+#define cdecl(s) cdecl2(MLKEM_NAMESPACE(##s))
 #else
-#define cdecl(s) mlkem_NAMESPACE(##s)
+#define cdecl(s) MLKEM_NAMESPACE(##s)
 #endif
 #endif
 
 #ifndef __ASSEMBLER__
 #include "align.h"
 typedef ALIGNED_INT16(640) qdata_t;
-#define qdata mlkem_NAMESPACE(qdata)
+#define qdata MLKEM_NAMESPACE(qdata)
 extern const qdata_t qdata;
 #endif
 

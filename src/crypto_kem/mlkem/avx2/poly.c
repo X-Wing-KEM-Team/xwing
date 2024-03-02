@@ -19,10 +19,10 @@
 *              by poly_reduce().
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
-*                            (of length mlkem_POLYCOMPRESSEDBYTES)
+*                            (of length MLKEM_POLYCOMPRESSEDBYTES)
 *              - const poly *a: pointer to input polynomial
 **************************************************/
-#if (mlkem_POLYCOMPRESSEDBYTES == 128)
+#if (MLKEM_POLYCOMPRESSEDBYTES == 128)
 void poly_compress(uint8_t r[128], const poly * restrict a)
 {
   unsigned int i;
@@ -33,7 +33,7 @@ void poly_compress(uint8_t r[128], const poly * restrict a)
   const __m256i shift2 = _mm256_set1_epi16((16 << 8) + 1);
   const __m256i permdidx = _mm256_set_epi32(7,3,6,2,5,1,4,0);
 
-  for(i=0;i<mlkem_N/64;i++) {
+  for(i=0;i<MLKEM_N/64;i++) {
     f0 = _mm256_load_si256(&a->vec[4*i+0]);
     f1 = _mm256_load_si256(&a->vec[4*i+1]);
     f2 = _mm256_load_si256(&a->vec[4*i+2]);
@@ -71,7 +71,7 @@ void poly_decompress(poly * restrict r, const uint8_t a[128])
   const __m256i mask = _mm256_set1_epi32(0x00F0000F);
   const __m256i shift = _mm256_set1_epi32((128 << 16) + 2048);
 
-  for(i=0;i<mlkem_N/16;i++) {
+  for(i=0;i<MLKEM_N/16;i++) {
     t = _mm_loadl_epi64((__m128i *)&a[8*i]);
     f = _mm256_broadcastsi128_si256(t);
     f = _mm256_shuffle_epi8(f,shufbidx);
@@ -82,7 +82,7 @@ void poly_decompress(poly * restrict r, const uint8_t a[128])
   }
 }
 
-#elif (mlkem_POLYCOMPRESSEDBYTES == 160)
+#elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
 void poly_compress(uint8_t r[160], const poly * restrict a)
 {
   unsigned int i;
@@ -97,7 +97,7 @@ void poly_compress(uint8_t r[160], const poly * restrict a)
   const __m256i shufbidx = _mm256_set_epi8( 8,-1,-1,-1,-1,-1, 4, 3, 2, 1, 0,-1,12,11,10, 9,
                                            -1,12,11,10, 9, 8,-1,-1,-1,-1,-1 ,4, 3, 2, 1, 0);
 
-  for(i=0;i<mlkem_N/32;i++) {
+  for(i=0;i<MLKEM_N/32;i++) {
     f0 = _mm256_load_si256(&a->vec[2*i+0]);
     f1 = _mm256_load_si256(&a->vec[2*i+1]);
     f0 = _mm256_mulhi_epi16(f0,v);
@@ -134,7 +134,7 @@ void poly_decompress(poly * restrict r, const uint8_t a[160])
   const __m256i shift = _mm256_set_epi16(128,16,512,64,8,256,32,1024,
                                          128,16,512,64,8,256,32,1024);
 
-  for(i=0;i<mlkem_N/16;i++) {
+  for(i=0;i<MLKEM_N/16;i++) {
     t = _mm_loadl_epi64((__m128i *)&a[10*i+0]);
     memcpy(&ti,&a[10*i+8],2);
     t = _mm_insert_epi16(t,ti,4);
@@ -160,10 +160,10 @@ void poly_decompress(poly * restrict r, const uint8_t a[160])
 *              order.
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
-*                            (needs space for mlkem_POLYBYTES bytes)
+*                            (needs space for MLKEM_POLYBYTES bytes)
 *              - poly *a: pointer to input polynomial
 **************************************************/
-void poly_tobytes(uint8_t r[mlkem_POLYBYTES], const poly *a)
+void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
 {
   ntttobytes_avx(r, a->vec, qdata.vec);
 }
@@ -176,9 +176,9 @@ void poly_tobytes(uint8_t r[mlkem_POLYBYTES], const poly *a)
 *
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
-*                                  (of mlkem_POLYBYTES bytes)
+*                                  (of MLKEM_POLYBYTES bytes)
 **************************************************/
-void poly_frombytes(poly *r, const uint8_t a[mlkem_POLYBYTES])
+void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
 {
   nttfrombytes_avx(r->vec, a, qdata.vec);
 }
@@ -191,15 +191,15 @@ void poly_frombytes(poly *r, const uint8_t a[mlkem_POLYBYTES])
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *msg: pointer to input message
 **************************************************/
-void poly_frommsg(poly * restrict r, const uint8_t msg[mlkem_INDCPA_MSGBYTES])
+void poly_frommsg(poly * restrict r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
 {
-#if (mlkem_INDCPA_MSGBYTES != 32)
-#error "mlkem_INDCPA_MSGBYTES must be equal to 32!"
+#if (MLKEM_INDCPA_MSGBYTES != 32)
+#error "MLKEM_INDCPA_MSGBYTES must be equal to 32!"
 #endif
   __m256i f, g0, g1, g2, g3, h0, h1, h2, h3;
   const __m256i shift = _mm256_broadcastsi128_si256(_mm_set_epi32(0,1,2,3));
   const __m256i idx = _mm256_broadcastsi128_si256(_mm_set_epi8(15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0));
-  const __m256i hqs = _mm256_set1_epi16((mlkem_Q+1)/2);
+  const __m256i hqs = _mm256_set1_epi16((MLKEM_Q+1)/2);
 
 #define FROMMSG64(i)						\
   g3 = _mm256_shuffle_epi32(f,0x55*i);				\
@@ -247,15 +247,15 @@ void poly_frommsg(poly * restrict r, const uint8_t msg[mlkem_INDCPA_MSGBYTES])
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - poly *a: pointer to input polynomial
 **************************************************/
-void poly_tomsg(uint8_t msg[mlkem_INDCPA_MSGBYTES], const poly * restrict a)
+void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly * restrict a)
 {
   unsigned int i;
   uint32_t small;
   __m256i f0, f1, g0, g1;
-  const __m256i hq = _mm256_set1_epi16((mlkem_Q - 1)/2);
-  const __m256i hhq = _mm256_set1_epi16((mlkem_Q - 1)/4);
+  const __m256i hq = _mm256_set1_epi16((MLKEM_Q - 1)/2);
+  const __m256i hhq = _mm256_set1_epi16((MLKEM_Q - 1)/4);
 
-  for(i=0;i<mlkem_N/32;i++) {
+  for(i=0;i<MLKEM_N/32;i++) {
     f0 = _mm256_load_si256(&a->vec[2*i+0]);
     f1 = _mm256_load_si256(&a->vec[2*i+1]);
     f0 = _mm256_sub_epi16(hq, f0);
@@ -278,17 +278,17 @@ void poly_tomsg(uint8_t msg[mlkem_INDCPA_MSGBYTES], const poly * restrict a)
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
 *              with output polynomial close to centered binomial distribution
-*              with parameter mlkem_ETA1
+*              with parameter MLKEM_ETA1
 *
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *seed: pointer to input seed
-*                                     (of length mlkem_SYMBYTES bytes)
+*                                     (of length MLKEM_SYMBYTES bytes)
 *              - uint8_t nonce: one-byte input nonce
 **************************************************/
-void poly_getnoise_eta1(poly *r, const uint8_t seed[mlkem_SYMBYTES], uint8_t nonce)
+void poly_getnoise_eta1(poly *r, const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce)
 {
-  ALIGNED_UINT8(mlkem_ETA1*mlkem_N/4+32) buf; // +32 bytes as required by poly_cbd_eta1
-  prf(buf.coeffs, mlkem_ETA1*mlkem_N/4, seed, nonce);
+  ALIGNED_UINT8(MLKEM_ETA1*MLKEM_N/4+32) buf; // +32 bytes as required by poly_cbd_eta1
+  prf(buf.coeffs, MLKEM_ETA1*MLKEM_N/4, seed, nonce);
   poly_cbd_eta1(r, buf.vec);
 }
 
@@ -297,22 +297,22 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[mlkem_SYMBYTES], uint8_t non
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
 *              with output polynomial close to centered binomial distribution
-*              with parameter mlkem_ETA2
+*              with parameter MLKEM_ETA2
 *
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *seed: pointer to input seed
-*                                     (of length mlkem_SYMBYTES bytes)
+*                                     (of length MLKEM_SYMBYTES bytes)
 *              - uint8_t nonce: one-byte input nonce
 **************************************************/
-void poly_getnoise_eta2(poly *r, const uint8_t seed[mlkem_SYMBYTES], uint8_t nonce)
+void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce)
 {
-  ALIGNED_UINT8(mlkem_ETA2*mlkem_N/4) buf;
-  prf(buf.coeffs, mlkem_ETA2*mlkem_N/4, seed, nonce);
+  ALIGNED_UINT8(MLKEM_ETA2*MLKEM_N/4) buf;
+  prf(buf.coeffs, MLKEM_ETA2*MLKEM_N/4, seed, nonce);
   poly_cbd_eta2(r, buf.vec);
 }
 
 #ifndef mlkem_90S
-#define NOISE_NBLOCKS ((mlkem_ETA1*mlkem_N/4+SHAKE256_RATE-1)/SHAKE256_RATE)
+#define NOISE_NBLOCKS ((MLKEM_ETA1*MLKEM_N/4+SHAKE256_RATE-1)/SHAKE256_RATE)
 void poly_getnoise_eta1_4x(poly *r0,
                            poly *r1,
                            poly *r2,
@@ -347,7 +347,7 @@ void poly_getnoise_eta1_4x(poly *r0,
   poly_cbd_eta1(r3, buf[3].vec);
 }
 
-#if mlkem_K == 2
+#if MLKEM_K == 2
 void poly_getnoise_eta1122_4x(poly *r0,
                               poly *r1,
                               poly *r2,
@@ -482,7 +482,7 @@ void poly_add(poly *r, const poly *a, const poly *b)
   unsigned int i;
   __m256i f0, f1;
 
-  for(i=0;i<mlkem_N/16;i++) {
+  for(i=0;i<MLKEM_N/16;i++) {
     f0 = _mm256_load_si256(&a->vec[i]);
     f1 = _mm256_load_si256(&b->vec[i]);
     f0 = _mm256_add_epi16(f0, f1);
@@ -505,7 +505,7 @@ void poly_sub(poly *r, const poly *a, const poly *b)
   unsigned int i;
   __m256i f0, f1;
 
-  for(i=0;i<mlkem_N/16;i++) {
+  for(i=0;i<MLKEM_N/16;i++) {
     f0 = _mm256_load_si256(&a->vec[i]);
     f1 = _mm256_load_si256(&b->vec[i]);
     f0 = _mm256_sub_epi16(f0, f1);
