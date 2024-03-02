@@ -114,7 +114,7 @@ This will output a JSON named `test_speed_results.json` with the following forma
 
 ## Shared libraries
 
-The reference and optimised implementation of X-Wing can be compiled into shared libraries by running:
+The reference and optimised implementation of X-Wing can be compiled into shared libraries by running in either the `ref` or `avx2` directories:
 
 ```sh
 make shared
