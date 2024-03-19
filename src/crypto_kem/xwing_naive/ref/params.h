@@ -1,7 +1,7 @@
 #ifndef PARAMS_HX
 #define PARAMS_HX
 
-#include "../../mlkem/avx2/params.h"
+#define xwing_naive_NAMESPACE(s) xwing_naive_avx2_##s
 
 #define DH_BYTES 32
 
