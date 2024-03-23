@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define USE_RDPMC
+// #define USE_RDPMC
 
 #ifdef USE_RDPMC  /* Needs echo 2 > /sys/devices/cpu/rdpmc */
 
