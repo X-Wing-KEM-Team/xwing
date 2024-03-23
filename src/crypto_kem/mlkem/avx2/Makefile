@@ -9,10 +9,10 @@ RM = /bin/rm
 SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
   basemul.S consts.c rejsample.c cbd.c verify.c
 SOURCESKECCAK   = $(SOURCES) fips202.c fips202x4.c symmetric-shake.c \
-  keccak4x/KeccakP-1600-times4-SIMD256.o
+  keccak4x/KeccakP-1600-times4-SIMD256.o keccak/KeccakP-1600-AVX2.c  keccak/KeccakSpongeWidth1600.c  
 HEADERS = params.h align.h kem.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
   ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h randombytes.h
-HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
+HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h keccak/KeccakP-1600-AVX2.h  keccak/KeccakP-1600-SnP.h  keccak/KeccakSponge-common.h keccak/KeccakSpongeWidth1600.h keccak/namespace.h  keccak/KeccakSponge.inc
 
 .PHONY: all shared clean
 

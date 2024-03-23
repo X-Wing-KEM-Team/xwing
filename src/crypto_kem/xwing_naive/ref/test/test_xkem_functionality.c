@@ -23,10 +23,10 @@ static int testFunctionality()
   fclose(urandom);
 
   /* TEST KEYPAIR */
-  crypto_xkem_keypair(pk0, sk0, randomness0);
+  crypto_xkem_keypair_derand(pk0, sk0, randomness0);
 
   /* TEST ENCAPSULATION */
-  crypto_xkem_enc(ct0, shk0, pk0, randomness1);
+  crypto_xkem_enc_derand(ct0, shk0, pk0, randomness1);
 
   /* TEST DECAPSULATION */
   crypto_xkem_dec(shk1, ct0, sk0);
