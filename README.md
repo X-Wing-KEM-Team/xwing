@@ -11,9 +11,9 @@ The optimised implementation targets the x86 architecture and CPUs with the AVX2
 
 This reuses and adapts code from some C files and headers, README, and Makefiles from [https://github.com/pq-crystals/kyber/tree/standard](https://github.com/pq-crystals/kyber/tree/standard) for the optimised ML-KEM-768 implementation (named just kyber in the repo), and is in the Public Domain or licensed by Apache Version 2. 
 
-The SHA3-256 and SHA3-512 uses code directly from `kcp/optimized1600AVX2`, which is used in SUPERCOP, [https://bench.cr.yp.to/impl-hash/sha3256.html](https://bench.cr.yp.to/impl-hash/sha3256.html).
+The SHA3-256 and SHA3-512 uses code directly from `kcp/optimized1600AVX2`, which is used in SUPERCOP, [https://bench.cr.yp.to/impl-hash/sha3256.html](https://bench.cr.yp.to/impl-hash/sha3256.html), which is in the Public Domain.
 
-Furthermore, this code also reuses and adapts some C files and headers, and Makefiles from [https://github.com/formosa-crypto/hakyber](https://github.com/formosa-crypto/hakyber) for the reference ML-KEM-768 implementation. The license for this code is unknown.  
+Furthermore, this code also reuses and adapts some C files and headers, and Makefiles from [https://github.com/formosa-crypto/hakyber](https://github.com/formosa-crypto/hakyber) for the reference ML-KEM-768 implementation, which is in the Public Domain or licensed by Apache Version 2. 
 
 ## Note on benchmarking
 
