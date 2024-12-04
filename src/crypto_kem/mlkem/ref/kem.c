@@ -1,75 +1,98 @@
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
+#include "params.h"
 #include "kem.h"
 #include "indcpa.h"
+#include "verify.h"
 #include "symmetric.h"
-
+#include "randombytes.h"
 /*************************************************
-* Name:        verify
+* Name:        crypto_kem_keypair_derand
 *
-* Description: Compare two arrays for equality in constant time.
+* Description: Generates public and private key
+*              for CCA-secure Kyber key encapsulation mechanism
 *
-* Arguments:   const uint8_t *a: pointer to first byte array
-*              const uint8_t *b: pointer to second byte array
-*              size_t len:       length of the byte arrays
-*
-* Returns 0 if the byte arrays are equal, 1 otherwise
+* Arguments:   - uint8_t *pk: pointer to output public key
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
+*              - uint8_t *sk: pointer to output private key
+*                (an already allocated array of KYBER_SECRETKEYBYTES bytes)
+*              - uint8_t *coins: pointer to input randomness
+*                (an already allocated array filled with 2*KYBER_SYMBYTES random bytes)
+**
+* Returns 0 (success)
 **************************************************/
-uint64_t verify(const uint8_t *a, const uint8_t *b, size_t len)
+int crypto_kem_keypair_derand(uint8_t *pk,
+                              uint8_t *sk,
+                              const uint8_t *coins)
 {
-  size_t i;
-  uint8_t r;
-
-  r = 0;
-  for(i=0; i < len; i ++)
-    r |= a[i] ^ b[i];
-
-  return (-(uint64_t)r) >> 63;
-}
-
-/*************************************************
-* Name:        cmov
-*
-* Description: Copy len bytes from x to r if b is 1;
-*              don't modify x if b is 0. Requires b to be in {0,1};
-*              assumes two's complement representation of negative integers.
-*              Runs in constant time.
-*
-* Arguments:   uint8_t *r:       pointer to output byte array
-*              const uint8_t *x: pointer to input byte array
-*              size_t len:       Amount of bytes to be copied
-*              uint8_t b:        Condition bit; has to be in {0,1}
-**************************************************/
-void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
-{
-  size_t i;
-
-  b = -b;
-  for(i=0; i < len; i++)
-    r[i] ^= b & (r[i] ^ x[i]);
+  indcpa_keypair_derand(pk, sk, coins);
+  memcpy(sk+KYBER_INDCPA_SECRETKEYBYTES, pk, KYBER_PUBLICKEYBYTES);
+  hash_h(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+  /* Value z for pseudo-random output on reject */
+  memcpy(sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, coins+KYBER_SYMBYTES, KYBER_SYMBYTES);
+  return 0;
 }
 
 /*************************************************
 * Name:        crypto_kem_keypair
 *
-* Description: Generates public and private key for the CCA-secure
-*              mlkem key encapsulation mechanism
+* Description: Generates public and private key
+*              for CCA-secure Kyber key encapsulation mechanism
 *
-* Arguments:   - unsigned char *pk: pointer to output public key
-*              - unsigned char *sk: pointer to output private key
+* Arguments:   - uint8_t *pk: pointer to output public key
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
+*              - uint8_t *sk: pointer to output private key
+*                (an already allocated array of KYBER_SECRETKEYBYTES bytes)
+*
+* Returns 0 (success)
 **************************************************/
-void crypto_kem_keypair(unsigned char *pk, 
-                    unsigned char *sk,
-                    const unsigned char *randomness)
+int crypto_kem_keypair(uint8_t *pk,
+                       uint8_t *sk)
 {
-  indcpa_keypair(pk, sk, randomness);
+  uint8_t coins[2*KYBER_SYMBYTES];
+  randombytes(coins, 2*KYBER_SYMBYTES);
+  crypto_kem_keypair_derand(pk, sk, coins);
+  return 0;
+}
 
-  memcpy(sk+MLKEM_INDCPA_SECRETKEYBYTES, pk, MLKEM_INDCPA_PUBLICKEYBYTES);
+/*************************************************
+* Name:        crypto_kem_enc_derand
+*
+* Description: Generates cipher text and shared
+*              secret for given public key
+*
+* Arguments:   - uint8_t *ct: pointer to output cipher text
+*                (an already allocated array of KYBER_CIPHERTEXTBYTES bytes)
+*              - uint8_t *ss: pointer to output shared secret
+*                (an already allocated array of KYBER_SSBYTES bytes)
+*              - const uint8_t *pk: pointer to input public key
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
+*              - const uint8_t *coins: pointer to input randomness
+*                (an already allocated array filled with KYBER_SYMBYTES random bytes)
+**
+* Returns 0 (success)
+**************************************************/
+int crypto_kem_enc_derand(uint8_t *ct,
+                          uint8_t *ss,
+                          const uint8_t *pk,
+                          const uint8_t *coins)
+{
+  uint8_t buf[2*KYBER_SYMBYTES];
+  /* Will contain key, coins */
+  uint8_t kr[2*KYBER_SYMBYTES];
 
-  hash_h(sk+MLKEM_SECRETKEYBYTES-2*MLKEM_SYMBYTES, pk, MLKEM_PUBLICKEYBYTES);
+  memcpy(buf, coins, KYBER_SYMBYTES);
 
-  memcpy(sk+MLKEM_SECRETKEYBYTES-MLKEM_SYMBYTES, randomness + MLKEM_SYMBYTES, MLKEM_SYMBYTES);
+  /* Multitarget countermeasure for coins + contributory KEM */
+  hash_h(buf+KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+  hash_g(kr, buf, 2*KYBER_SYMBYTES);
+
+  /* coins are in kr+KYBER_SYMBYTES */
+  indcpa_enc(ct, buf, pk, kr+KYBER_SYMBYTES);
+
+  memcpy(ss,kr,KYBER_SYMBYTES);
+  return 0;
 }
 
 /*************************************************
@@ -78,31 +101,23 @@ void crypto_kem_keypair(unsigned char *pk,
 * Description: Generates cipher text and shared
 *              secret for given public key
 *
-* Arguments:   - unsigned char *c:          pointer to output ciphertext (of length MLKEM_INDCPA_BYTES bytes)
-*              - const unsigned char *m:    pointer to input message (of length MLKEM_INDCPA_MSGBYTES bytes)
-*              - const unsigned char *pk:   pointer to input public key (of length MLKEM_INDCPA_PUBLICKEYBYTES bytes)
-*              - const unsigned char *coin: pointer to input random coins used as seed (of length MLKEM_SYMBYTES bytes)
-*                                           to deterministically generate all randomness
+* Arguments:   - uint8_t *ct: pointer to output cipher text
+*                (an already allocated array of KYBER_CIPHERTEXTBYTES bytes)
+*              - uint8_t *ss: pointer to output shared secret
+*                (an already allocated array of KYBER_SSBYTES bytes)
+*              - const uint8_t *pk: pointer to input public key
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
+*
+* Returns 0 (success)
 **************************************************/
-void crypto_kem_enc(unsigned char *ct,
-                unsigned char *ss,
-                const unsigned char *pk,
-                const unsigned char *coins)
+int crypto_kem_enc(uint8_t *ct,
+                   uint8_t *ss,
+                   const uint8_t *pk)
 {
-  uint8_t buf[2*MLKEM_SYMBYTES];
-  /* Will contain key, coins */
-  uint8_t kr[2*MLKEM_SYMBYTES];
-
-  memcpy(buf, coins, MLKEM_SYMBYTES);
-
-  /* Multitarget countermeasure for coins + contributory KEM */
-  hash_h(buf+MLKEM_SYMBYTES, pk, MLKEM_PUBLICKEYBYTES);
-  hash_g(kr, buf, 2*MLKEM_SYMBYTES);
-
-  /* coins are in kr+MLKEM_SYMBYTES */
-  indcpa_enc(ct, buf, pk, kr+MLKEM_SYMBYTES);
-
-  memcpy(ss,kr,MLKEM_SYMBYTES);
+  uint8_t coins[KYBER_SYMBYTES];
+  randombytes(coins, KYBER_SYMBYTES);
+  crypto_kem_enc_derand(ct, ss, pk, coins);
+  return 0;
 }
 
 /*************************************************
@@ -111,35 +126,44 @@ void crypto_kem_enc(unsigned char *ct,
 * Description: Generates shared secret for given
 *              cipher text and private key
 *
-* Arguments:   - unsigned char *m:        pointer to output decrypted message (of length MLKEM_INDCPA_MSGBYTES)
-*              - const unsigned char *c:  pointer to input ciphertext (of length MLKEM_INDCPA_BYTES)
-*              - const unsigned char *sk: pointer to input secret key (of length MLKEM_INDCPA_SECRETKEYBYTES)
+* Arguments:   - uint8_t *ss: pointer to output shared secret
+*                (an already allocated array of KYBER_SSBYTES bytes)
+*              - const uint8_t *ct: pointer to input cipher text
+*                (an already allocated array of KYBER_CIPHERTEXTBYTES bytes)
+*              - const uint8_t *sk: pointer to input private key
+*                (an already allocated array of KYBER_SECRETKEYBYTES bytes)
+*
+* Returns 0.
+*
+* On failure, ss will contain a pseudo-random value.
 **************************************************/
-void crypto_kem_dec(uint8_t *ss,
-                const uint8_t *ct,
-                const uint8_t *sk)
+int crypto_kem_dec(uint8_t *ss,
+                   const uint8_t *ct,
+                   const uint8_t *sk)
 {
   int fail;
-  uint8_t buf[2*MLKEM_SYMBYTES];
+  uint8_t buf[2*KYBER_SYMBYTES];
   /* Will contain key, coins */
-  uint8_t kr[2*MLKEM_SYMBYTES];
-  uint8_t cmp[MLKEM_CIPHERTEXTBYTES+MLKEM_SYMBYTES];
-  const uint8_t *pk = sk+MLKEM_INDCPA_SECRETKEYBYTES;
+  uint8_t kr[2*KYBER_SYMBYTES];
+  uint8_t cmp[KYBER_CIPHERTEXTBYTES+KYBER_SYMBYTES];
+  const uint8_t *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;
 
   indcpa_dec(buf, ct, sk);
 
   /* Multitarget countermeasure for coins + contributory KEM */
-  memcpy(buf+MLKEM_SYMBYTES, sk+MLKEM_SECRETKEYBYTES-2*MLKEM_SYMBYTES, MLKEM_SYMBYTES);
-  hash_g(kr, buf, 2*MLKEM_SYMBYTES);
+  memcpy(buf+KYBER_SYMBYTES, sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, KYBER_SYMBYTES);
+  hash_g(kr, buf, 2*KYBER_SYMBYTES);
 
-  /* coins are in kr+MLKEM_SYMBYTES */
-  indcpa_enc(cmp, buf, pk, kr+MLKEM_SYMBYTES);
+  /* coins are in kr+KYBER_SYMBYTES */
+  indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES);
 
-  fail = verify(ct, cmp, MLKEM_CIPHERTEXTBYTES);
+  fail = verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
 
   /* Compute rejection key */
-  rkprf(ss,sk+MLKEM_SECRETKEYBYTES-MLKEM_SYMBYTES,ct);
+  rkprf(ss,sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES,ct);
 
   /* Copy true key to return buffer if fail is false */
-  cmov(ss,kr,MLKEM_SYMBYTES,!fail);
+  cmov(ss,kr,KYBER_SYMBYTES,!fail);
+
+  return 0;
 }

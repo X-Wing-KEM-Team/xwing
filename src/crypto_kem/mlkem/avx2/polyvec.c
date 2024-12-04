@@ -7,7 +7,7 @@
 #include "ntt.h"
 #include "consts.h"
 
-#if (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 320))
+#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
 static void poly_compress10(uint8_t r[320], const poly * restrict a)
 {
   unsigned int i;
@@ -23,7 +23,7 @@ static void poly_compress10(uint8_t r[320], const poly * restrict a)
   const __m256i shufbidx = _mm256_set_epi8( 8, 4, 3, 2, 1, 0,-1,-1,-1,-1,-1,-1,12,11,10, 9,
                                            -1,-1,-1,-1,-1,-1,12,11,10, 9, 8, 4, 3, 2, 1, 0);
 
-  for(i=0;i<MLKEM_N/16;i++) {
+  for(i=0;i<KYBER_N/16;i++) {
     f0 = _mm256_load_si256(&a->vec[i]);
     f1 = _mm256_mullo_epi16(f0,v8);
     f2 = _mm256_add_epi16(f0,off);
@@ -51,7 +51,7 @@ static void poly_decompress10(poly * restrict r, const uint8_t a[320+12])
 {
   unsigned int i;
   __m256i f;
-  const __m256i q = _mm256_set1_epi32((MLKEM_Q << 16) + 4*MLKEM_Q);
+  const __m256i q = _mm256_set1_epi32((KYBER_Q << 16) + 4*KYBER_Q);
   const __m256i shufbidx = _mm256_set_epi8(11,10,10, 9, 9, 8, 8, 7,
                                             6, 5, 5, 4, 4, 3, 3, 2,
                                             9, 8, 8, 7, 7, 6, 6, 5,
@@ -59,7 +59,7 @@ static void poly_decompress10(poly * restrict r, const uint8_t a[320+12])
   const __m256i sllvdidx = _mm256_set1_epi64x(4);
   const __m256i mask = _mm256_set1_epi32((32736 << 16) + 8184);
 
-  for(i=0;i<MLKEM_N/16;i++) {
+  for(i=0;i<KYBER_N/16;i++) {
     f = _mm256_loadu_si256((__m256i *)&a[20*i]);
     f = _mm256_permute4x64_epi64(f,0x94);
     f = _mm256_shuffle_epi8(f,shufbidx);
@@ -71,7 +71,7 @@ static void poly_decompress10(poly * restrict r, const uint8_t a[320+12])
   }
 }
 
-#elif (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 352))
+#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
 static void poly_compress11(uint8_t r[352+2], const poly * restrict a)
 {
   unsigned int i;
@@ -88,7 +88,7 @@ static void poly_compress11(uint8_t r[352+2], const poly * restrict a)
   const __m256i shufbidx = _mm256_set_epi8( 4, 3, 2, 1, 0, 0,-1,-1,-1,-1,10, 9, 8, 7, 6, 5,
                                            -1,-1,-1,-1,-1,10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
-  for(i=0;i<MLKEM_N/16;i++) {
+  for(i=0;i<KYBER_N/16;i++) {
     f0 = _mm256_load_si256(&a->vec[i]);
     f1 = _mm256_mullo_epi16(f0,v8);
     f2 = _mm256_add_epi16(f0,off);
@@ -129,7 +129,7 @@ static void poly_decompress11(poly * restrict r, const uint8_t a[352+10])
   const __m256i shift = _mm256_set_epi16(4,32,1,8,32,1,4,32,4,32,1,8,32,1,4,32);
   const __m256i mask = _mm256_set1_epi16(32752);
 
-  for(i=0;i<MLKEM_N/16;i++) {
+  for(i=0;i<KYBER_N/16;i++) {
     f = _mm256_loadu_si256((__m256i *)&a[22*i]);
     f = _mm256_permute4x64_epi64(f,0x94);
     f = _mm256_shuffle_epi8(f,shufbidx);
@@ -151,18 +151,18 @@ static void poly_decompress11(poly * restrict r, const uint8_t a[352+10])
 * Description: Compress and serialize vector of polynomials
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
-*                            (needs space for MLKEM_POLYVECCOMPRESSEDBYTES)
+*                            (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
 *              - polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES+2], const polyvec *a)
+void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES+2], const polyvec *a)
 {
   unsigned int i;
 
-#if (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 320))
-  for(i=0;i<MLKEM_K;i++)
+#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
+  for(i=0;i<KYBER_K;i++)
     poly_compress10(&r[320*i],&a->vec[i]);
-#elif (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 352))
-  for(i=0;i<MLKEM_K;i++)
+#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+  for(i=0;i<KYBER_K;i++)
     poly_compress11(&r[352*i],&a->vec[i]);
 #endif
 }
@@ -175,17 +175,17 @@ void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES+2], const polyvec *
 *
 * Arguments:   - polyvec *r: pointer to output vector of polynomials
 *              - const uint8_t *a: pointer to input byte array
-*                                  (of length MLKEM_POLYVECCOMPRESSEDBYTES)
+*                                  (of length KYBER_POLYVECCOMPRESSEDBYTES)
 **************************************************/
-void polyvec_decompress(polyvec *r, const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES+12])
+void polyvec_decompress(polyvec *r, const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES+12])
 {
   unsigned int i;
 
-#if (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 320))
-  for(i=0;i<MLKEM_K;i++)
+#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
+  for(i=0;i<KYBER_K;i++)
     poly_decompress10(&r->vec[i],&a[320*i]);
-#elif (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 352))
-  for(i=0;i<MLKEM_K;i++)
+#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+  for(i=0;i<KYBER_K;i++)
     poly_decompress11(&r->vec[i],&a[352*i]);
 #endif
 }
@@ -196,14 +196,14 @@ void polyvec_decompress(polyvec *r, const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES
 * Description: Serialize vector of polynomials
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
-*                            (needs space for MLKEM_POLYVECBYTES)
+*                            (needs space for KYBER_POLYVECBYTES)
 *              - polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a)
+void polyvec_tobytes(uint8_t r[KYBER_POLYVECBYTES], const polyvec *a)
 {
   unsigned int i;
-  for(i=0;i<MLKEM_K;i++)
-    poly_tobytes(r+i*MLKEM_POLYBYTES, &a->vec[i]);
+  for(i=0;i<KYBER_K;i++)
+    poly_tobytes(r+i*KYBER_POLYBYTES, &a->vec[i]);
 }
 
 /*************************************************
@@ -214,13 +214,13 @@ void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a)
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
-*                                  (of length MLKEM_POLYVECBYTES)
+*                                  (of length KYBER_POLYVECBYTES)
 **************************************************/
-void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES])
+void polyvec_frombytes(polyvec *r, const uint8_t a[KYBER_POLYVECBYTES])
 {
   unsigned int i;
-  for(i=0;i<MLKEM_K;i++)
-    poly_frombytes(&r->vec[i], a+i*MLKEM_POLYBYTES);
+  for(i=0;i<KYBER_K;i++)
+    poly_frombytes(&r->vec[i], a+i*KYBER_POLYBYTES);
 }
 
 /*************************************************
@@ -233,7 +233,7 @@ void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES])
 void polyvec_ntt(polyvec *r)
 {
   unsigned int i;
-  for(i=0;i<MLKEM_K;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_ntt(&r->vec[i]);
 }
 
@@ -248,7 +248,7 @@ void polyvec_ntt(polyvec *r)
 void polyvec_invntt_tomont(polyvec *r)
 {
   unsigned int i;
-  for(i=0;i<MLKEM_K;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_invntt_tomont(&r->vec[i]);
 }
 
@@ -268,7 +268,7 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
   poly tmp;
 
   poly_basemul_montgomery(r,&a->vec[0],&b->vec[0]);
-  for(i=1;i<MLKEM_K;i++) {
+  for(i=1;i<KYBER_K;i++) {
     poly_basemul_montgomery(&tmp,&a->vec[i],&b->vec[i]);
     poly_add(r,r,&tmp);
   }
@@ -286,7 +286,7 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
 void polyvec_reduce(polyvec *r)
 {
   unsigned int i;
-  for(i=0;i<MLKEM_K;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_reduce(&r->vec[i]);
 }
 
@@ -302,6 +302,6 @@ void polyvec_reduce(polyvec *r)
 void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
 {
   unsigned int i;
-  for(i=0;i<MLKEM_K;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
 }

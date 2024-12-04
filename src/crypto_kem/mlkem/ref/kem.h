@@ -3,17 +3,10 @@
 
 #include <stdint.h>
 
-void crypto_kem_keypair(unsigned char *pk,
-                    unsigned char *sk,
-                    const unsigned char *randomness);
+int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins);
 
-void crypto_kem_enc(unsigned char *c,
-                unsigned char *m,
-                const unsigned char *pk,
-                const unsigned char *coins);
+int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk, const uint8_t *coins);
 
-void crypto_kem_dec(unsigned char *m,
-                const unsigned char *c,
-                const unsigned char *sk);
+int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
 
 #endif
