@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <lib25519.h>
-#include "../../mlkem/ref/kem.h"
 #include "xkem.h"
 #include "params.h"
+#include "../../mlkem/ref/kem.h"
 #include "../../mlkem/ref/symmetric.h"
 #include "../../mlkem/ref/randombytes.h"
 
