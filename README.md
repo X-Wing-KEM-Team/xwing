@@ -5,7 +5,7 @@
 > [!TIP]  
 > For the -06 draft implementation, see the [06-draft branch](https://github.com/X-Wing-KEM-Team/xwing/tree/06-draft).
  
-Optimised and reference C implementation of the X-Wing hybrid KEM as defined in [draft-connolly-cfrg-xwing-kem](https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/) and analysed in [https://eprint.iacr.org/2024/039](https://eprint.iacr.org/2024/039) by Barbosa et al.
+Optimised and reference C implementation of the X-Wing hybrid KEM as defined in [draft-connolly-cfrg-xwing-kem-00](https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/00/) and analysed in [https://eprint.iacr.org/2024/039](https://eprint.iacr.org/2024/039) by Barbosa et al.
 
 Both implementations conform to the [libsodium API format](https://doc.libsodium.org/). 
 The optimised implementation targets the x86 architecture and CPUs with the AVX2 instruction set. 
