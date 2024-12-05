@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define xwing_SECRETKEYBYTES 2464
+#define xwing_SECRETKEYBYTES 32
 #define xwing_PUBLICKEYBYTES 1216
 #define xwing_CIPHERTEXTBYTES 1120
 #define xwing_KEYPAIRCOINBYTES 96

@@ -1,11 +1,11 @@
-#include <lib25519.h>
+#include <stdio.h>
 #include <string.h>
+#include <lib25519.h>
 #include "xkem.h"
 #include "params.h"
-#include "../../mlkem/avx2/params.h"
 #include "../../mlkem/avx2/kem.h"
+#include "../../mlkem/avx2/symmetric.h"
 #include "../../mlkem/avx2/randombytes.h"
-#include "../../mlkem/avx2/fips202.h"
 
 /*************************************************
  * Name:        crypto_xkem_keypair_derand
@@ -22,13 +22,16 @@ int crypto_xkem_keypair_derand(unsigned char *pk,
                                 unsigned char *sk,
                                 const unsigned char *randomness)
 {
-  crypto_kem_keypair_derand(pk, sk, randomness);
-  pk += MLKEM_PUBLICKEYBYTES;
-  sk += MLKEM_SECRETKEYBYTES;
-  randomness += 2 * XWING_SYMBYTES;
-  lib25519_nG_montgomery25519(pk, randomness);
-  memcpy(sk, randomness, DH_BYTES);
-  memcpy(sk + DH_BYTES, pk, DH_BYTES);
+  unsigned char expanded[3 * XWING_SYMBYTES];
+  unsigned char *expandedPointer = expanded;
+  unsigned char skm[KYBER_SECRETKEYBYTES]; // not used in the end as sk = randomness
+  unsigned char *skmPointer = skm;  
+  shake256(expandedPointer, 3 * XWING_SYMBYTES, randomness, XWING_SYMBYTES);    
+  crypto_kem_keypair_derand(pk, skmPointer, expandedPointer);
+  pk += KYBER_PUBLICKEYBYTES;
+  expandedPointer += 2 * XWING_SYMBYTES;
+  lib25519_nG_montgomery25519(pk, expandedPointer);  
+  memcpy(sk, randomness, XWING_SYMBYTES);
   return 0;
 }
 
@@ -44,8 +47,8 @@ int crypto_xkem_keypair_derand(unsigned char *pk,
 int crypto_xkem_keypair(unsigned char *pk,
                          unsigned char *sk)
 {
-  unsigned char buf[3 * DH_BYTES];
-  randombytes(buf, 3 * DH_BYTES);
+  unsigned char buf[XWING_SYMBYTES];
+  randombytes(buf, XWING_SYMBYTES);
   return crypto_xkem_keypair_derand(pk, sk, buf);
 }
 
@@ -68,24 +71,20 @@ int crypto_xkem_enc_derand(unsigned char *ct,
 {
   unsigned char buffer[XWING_PRFINPUT];
   unsigned char *bufferPointer = buffer;
-
-  memcpy(buffer, XWING_LABEL, 6);
-  bufferPointer += 6;
-
   crypto_kem_enc_derand(ct, bufferPointer, pk, coins);
-
-  pk += MLKEM_PUBLICKEYBYTES;
-  ct += MLKEM_CIPHERTEXTBYTES;
-  coins += DH_BYTES;
-  bufferPointer += MLKEM_SSBYTES;
-
-  lib25519_nG_montgomery25519(ct, coins);
+  
+  pk += KYBER_PUBLICKEYBYTES;
+  ct += KYBER_CIPHERTEXTBYTES;
+  coins += XWING_SYMBYTES;
+  bufferPointer += XWING_SYMBYTES;
   lib25519_dh(bufferPointer, pk, coins);
-  bufferPointer += DH_BYTES;
-
-  memcpy(bufferPointer, ct, DH_BYTES);
-  memcpy(bufferPointer + DH_BYTES, pk, DH_BYTES);
-
+  bufferPointer += XWING_SYMBYTES;
+  lib25519_nG_montgomery25519(ct, coins);
+  memcpy(bufferPointer, ct, XWING_SYMBYTES);
+  bufferPointer += XWING_SYMBYTES;
+  memcpy(bufferPointer, pk, XWING_SYMBYTES);
+  bufferPointer += XWING_SYMBYTES;
+  memcpy(bufferPointer, XWING_LABEL, 6);
   sha3_256(ss, buffer, XWING_PRFINPUT);
   return 0;
 }
@@ -103,8 +102,8 @@ int crypto_xkem_enc(unsigned char *ct,
                      unsigned char *ss,
                      const unsigned char *pk)
 {
-  unsigned char buf[2 * DH_BYTES];
-  randombytes(buf, 2 * DH_BYTES);
+  unsigned char buf[2 * XWING_SYMBYTES];
+  randombytes(buf, 2 * XWING_SYMBYTES);
 
   return crypto_xkem_enc_derand(ct, ss, pk, buf);
 }
@@ -124,24 +123,27 @@ int crypto_xkem_dec(uint8_t *ss,
                      const uint8_t *sk)
 {
   unsigned char buffer[XWING_PRFINPUT];
-  unsigned char *bufferPointer = buffer;
-
-  memcpy(bufferPointer, XWING_LABEL, 6);
-  bufferPointer += 6;
-
-  crypto_kem_dec(bufferPointer, ct, sk);
-
-  sk += MLKEM_SECRETKEYBYTES;
-  ct += MLKEM_CIPHERTEXTBYTES;
-  bufferPointer += MLKEM_SSBYTES;
-
-  lib25519_dh(bufferPointer, ct, sk);
-  sk += DH_BYTES;
-  bufferPointer += DH_BYTES;
-
+  unsigned char *bufferPointer = buffer;  
+  unsigned char expanded[3 * XWING_SYMBYTES];
+  unsigned char *expandedPointer = expanded;
+  unsigned char skm[KYBER_SECRETKEYBYTES]; // not used in the end as sk = randomness
+  unsigned char *skmPointer = skm;  
+  unsigned char pkm[KYBER_PUBLICKEYBYTES]; // not used in the end as sk = randomness
+  unsigned char *pkmPointer = pkm;  
+  
+  shake256(expandedPointer, 3 * XWING_SYMBYTES, sk, XWING_SYMBYTES);
+  crypto_kem_keypair_derand(pkmPointer, skmPointer, expandedPointer);    
+  crypto_kem_dec(bufferPointer, ct, skmPointer);  
+  expandedPointer += 2*XWING_SYMBYTES;
+  ct += KYBER_CIPHERTEXTBYTES;
+  bufferPointer += XWING_SYMBYTES;
+  lib25519_dh(bufferPointer, ct, expandedPointer);
+  bufferPointer += XWING_SYMBYTES;  
   memcpy(bufferPointer, ct, DH_BYTES);
-  memcpy(bufferPointer + DH_BYTES, sk, DH_BYTES);
-
+  bufferPointer += XWING_SYMBYTES;
+  lib25519_nG_montgomery25519(bufferPointer, expandedPointer);
+  bufferPointer += XWING_SYMBYTES;
+  memcpy(bufferPointer, XWING_LABEL, 6);
   sha3_256(ss, buffer, XWING_PRFINPUT);
   return 0;
 }
