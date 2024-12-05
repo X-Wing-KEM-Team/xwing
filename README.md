@@ -63,7 +63,7 @@ To compile the test and benchmarking programs on Linux or macOS, either run `mak
 This will produce the executables:
 
 ```sh
-# for X-Wing an X-Wing naive
+# for X-Wing and X-Wing naive
 test/test_xkem_functionality
 test/test_speed
 
