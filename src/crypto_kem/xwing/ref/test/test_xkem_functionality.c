@@ -68,7 +68,7 @@ static int testInvalidCiphertext(void)
 
 static int testTestVectors(void)
 {
-  int i, j, error;
+  int i, error;
   error = 0;
 
   unsigned char sk0[XWING_SECRETKEYBYTES];
@@ -77,62 +77,60 @@ static int testTestVectors(void)
   unsigned char shk0[XWING_SSBYTES];
   unsigned char shk1[XWING_SSBYTES];
 
-  for (j = 0; j < 3; j++)
-  {
     /* TEST KEYPAIR */
-    crypto_xkem_keypair_derand(pk0, sk0, XWING_SEED_TEST_VECTOR[j]);
+    crypto_xkem_keypair_derand(pk0, sk0, XWING_SEED_TEST_VECTOR);
 
     for (i = 0; i < XWING_PUBLICKEYBYTES; i++)
     {
-      if (pk0[i] != XWING_PUBLICKEY_TEST_VECTOR[j][i])
+      if (pk0[i] != XWING_PUBLICKEY_TEST_VECTOR[i])
       {
-        printf("vector %d error crypto_xkem_keypair_derand pk: %d pk0= %#04X - XWING_PUBLICKEY_TEST_VECTOR = %#04X\n", j, i, pk0[i], XWING_PUBLICKEY_TEST_VECTOR[j][i]);
+        printf("error crypto_xkem_keypair_derand pk: %d pk0= %#04X - XWING_PUBLICKEY_TEST_VECTOR = %#04X\n", i, pk0[i], XWING_PUBLICKEY_TEST_VECTOR[i]);
         error = 1;
       }
     }
 
     for (i = 0; i < XWING_SECRETKEYBYTES; i++)
     {
-      if (sk0[i] != XWING_SECRETKEY_TEST_VECTOR[j][i])
+      if (sk0[i] != XWING_SECRETKEY_TEST_VECTOR[i])
       {
-        printf("vector %d crypto_xkem_keypair_derand sk : %d sk0= %#04X and XWING_SECRETKEY_TEST_VECTOR = %#04X\n", j, i, sk0[i], XWING_SECRETKEY_TEST_VECTOR[j][i]);
+        printf("crypto_xkem_keypair_derand sk : %d sk0= %#04X and XWING_SECRETKEY_TEST_VECTOR = %#04X\n", i, sk0[i], XWING_SECRETKEY_TEST_VECTOR[i]);
         error = 1;
       }
     }
 
-    crypto_xkem_enc_derand(ct0, shk0, XWING_PUBLICKEY_TEST_VECTOR[j], XWING_ESEED_TEST_VECTOR[j]);
+    /* TEST ENCAPSULATION */    
+    crypto_xkem_enc_derand(ct0, shk0, XWING_PUBLICKEY_TEST_VECTOR, XWING_ESEED_TEST_VECTOR);
 
     for (i = 0; i < XWING_CIPHERTEXTBYTES; i++)
     {
-      if (ct0[i] != XWING_CIPHERTEXT_TEST_VECTOR[j][i])
+      if (ct0[i] != XWING_CIPHERTEXT_TEST_VECTOR[i])
       {
-        printf("error crypto_xkem_enc_derand ct: %d ct0= %#04X - XWING_CIPHERTEXT_TEST_VECTOR = %#04X\n", i, ct0[i], XWING_CIPHERTEXT_TEST_VECTOR[j][i]);
+        printf("error crypto_xkem_enc_derand ct: %d ct0= %#04X - XWING_CIPHERTEXT_TEST_VECTOR = %#04X\n", i, ct0[i], XWING_CIPHERTEXT_TEST_VECTOR[i]);
         error = 1;
       }
     }
 
     for (i = 0; i < XWING_SSBYTES; i++)
     {
-      if (shk0[i] != XWING_SHAREDKEY_TEST_VECTOR[j][i])
+      if (shk0[i] != XWING_SHAREDKEY_TEST_VECTOR[i])
       {
-        printf("error crypto_xkem_enc_derand shk: %d shk0= %#04X - XWING_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], XWING_SHAREDKEY_TEST_VECTOR[j][i]);
+        printf("error crypto_xkem_enc_derand shk: %d shk0= %#04X - XWING_SHAREDKEY_TEST_VECTOR= %#04X\n", i, shk0[i], XWING_SHAREDKEY_TEST_VECTOR[i]);
         error = 1;
       }
     }
 
-    /* TEST DECAPSULATION */
-
-    crypto_xkem_dec(shk1, XWING_CIPHERTEXT_TEST_VECTOR[j], XWING_SECRETKEY_TEST_VECTOR[j]);
+   /* TEST DECAPSULATION */
+    crypto_xkem_dec(shk1, XWING_CIPHERTEXT_TEST_VECTOR, XWING_SECRETKEY_TEST_VECTOR);
 
     for (i = 0; i < XWING_SSBYTES; i++)
     {
-      if (shk1[i] != XWING_SHAREDKEY_TEST_VECTOR[j][i])
+      if (shk1[i] != XWING_SHAREDKEY_TEST_VECTOR[i])
       {
-        printf("error crypto_xkem_dec: %d shk1= %#04X - XWING_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], XWING_SHAREDKEY_TEST_VECTOR[j][i]);
+        printf("error crypto_xkem_dec: %d shk1= %#04X - XWING_SHAREDKEY_TEST_VECTOR = %#04X\n", i, shk1[i], XWING_SHAREDKEY_TEST_VECTOR[i]);
         error = 1;
       }
     }
-  }
+
   assert(error == 0);
   return 0;
 }
@@ -145,11 +143,11 @@ static int testFunctionality(void)
   unsigned char shk0[XWING_SSBYTES];
   unsigned char shk1[XWING_SSBYTES];
 
-  unsigned char randomness0[XWING_SYMBYTES * 3];
+  unsigned char randomness0[XWING_SYMBYTES];
   unsigned char randomness1[XWING_SYMBYTES * 2];
 
   FILE *urandom = fopen("/dev/urandom", "r");
-  fread(randomness0, 3 * XWING_SYMBYTES, 1, urandom);
+  fread(randomness0, XWING_SYMBYTES, 1, urandom);
   fread(randomness1, 2 * XWING_SYMBYTES, 1, urandom);
   fclose(urandom);
 
