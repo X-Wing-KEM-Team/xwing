@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/JoaoDiogoDuarte/xwing/badge.svg?branch=main)](https://coveralls.io/github/JoaoDiogoDuarte/xwing?branch=main)
 
 > [!TIP]  
-> For the -06 draft implementation, see the [06-branch branch](https://github.com/X-Wing-KEM-Team/xwing/tree/06-draft).
+> For the -06 draft implementation, see the [06-draft branch](https://github.com/X-Wing-KEM-Team/xwing/tree/06-draft).
  
 Optimised and reference C implementation of the X-Wing hybrid KEM as defined in [draft-connolly-cfrg-xwing-kem](https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/) and analysed in [https://eprint.iacr.org/2024/039](https://eprint.iacr.org/2024/039) by Barbosa et al.
 
