@@ -5,6 +5,7 @@ import psutil
 import re
 import statistics
 import subprocess
+from psutil._common import bytes2human
 
 algorithms = {}
 
@@ -25,14 +26,15 @@ def get_system_info():
     algorithms["system_info"]["platform-version"] = platform.version()
     algorithms["system_info"]["architecture"] = platform.machine()
     algorithms["system_info"]["processor"] = cpuname
-    algorithms["system_info"]["min_requency"] = f"{cpufreq.min:.2f}Mhz"
-    algorithms["system_info"]["max_requency"] = f"{cpufreq.max:.2f}Mhz"
-    algorithms["system_info"]["frequency_used"] = "3.6Mhz"
-    algorithms["system_info"]["physical cores"] = psutil.cpu_count(logical=False)
-    algorithms["system_info"]["total cores"] = psutil.cpu_count(logical=True)
+    if cpufreq:
+       algorithms["system_info"]["min_frequency"] = f"{cpufreq.min:.2f}Mhz"
+       algorithms["system_info"]["max_frequency"] = f"{cpufreq.max:.2f}Mhz"
+       algorithms["system_info"]["current_frequency"] = f"{cpufreq.current:.2f}Mhz"
+    algorithms["system_info"]["physical_cores"] = psutil.cpu_count(logical=False)
+    algorithms["system_info"]["total_cores"] = psutil.cpu_count(logical=True)
     algorithms["system_info"][
         "ram"
-    ] = f"{round(psutil.virtual_memory().total/1000000000, 2)} GB"
+    ] = f"{bytes2human(psutil.virtual_memory().total)}"
 
 
 def parse_file(filename: str):
@@ -78,3 +80,5 @@ if __name__ == "__main__":
 
     with open("test_speed_results.json", "w") as write_file:
         json.dump(algorithms, write_file, indent=2)
+
+    print(json.dumps(algorithms, indent=2))
